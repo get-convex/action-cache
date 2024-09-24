@@ -10,6 +10,7 @@
  * @module
  */
 
+import type * as cache from "../cache.js";
 import type * as public from "../public.js";
 
 import type {
@@ -26,17 +27,25 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  cache: typeof cache;
   public: typeof public;
 }>;
 export type Mounts = {
-  public: {
-    add: FunctionReference<
+  cache: {
+    getFromCache: FunctionReference<
       "mutation",
       "public",
-      { count: number; name: string; shards?: number },
-      null
+      { key: string },
+      Array<number> | null
     >;
-    count: FunctionReference<"query", "public", { name: string }, number>;
+  };
+  public: {
+    get: FunctionReference<
+      "action",
+      "public",
+      { functionHandle: string; key: string },
+      Array<number>
+    >;
   };
 };
 // For now fullApiWithMounts is only fullApi which provides

@@ -1,41 +1,21 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { action, internalMutation, mutation, query } from "./_generated/server";
+import { api, fullApiWithMounts, internal } from "./_generated/api";
 
-export const add = mutation({
+export const get = action({
   args: {
-    name: v.string(),
-    count: v.number(),
-    shards: v.optional(v.number()),
+    key: v.string(),
+    functionHandle: v.string(),
   },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    const shard = Math.floor(Math.random() * (args.shards ?? 1));
-    const counter = await ctx.db
-      .query("counters")
-      .withIndex("name", (q) => q.eq("name", args.name).eq("shard", shard))
-      .unique();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        value: counter.value + args.count,
-      });
-    } else {
-      await ctx.db.insert("counters", {
-        name: args.name,
-        value: args.count,
-        shard,
-      });
-    }
-  },
-});
-
-export const count = query({
-  args: { name: v.string() },
-  returns: v.number(),
-  handler: async (ctx, args) => {
-    const counters = await ctx.db
-      .query("counters")
-      .withIndex("name", (q) => q.eq("name", args.name))
-      .collect();
-    return counters.reduce((sum, counter) => sum + counter.value, 0);
+  returns: v.array(v.number()),
+  handler: async (ctx, { key, functionHandle }) => {
+    // First try the cache
+    const cached: number[] | null = (await ctx.runMutation(
+      api.cache.getFromCache,
+      { key }
+    )) as number[] | null;
+    if (cached) return cached;
+    else return [];
+    // Then try the function
   },
 });
