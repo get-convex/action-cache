@@ -1,6 +1,7 @@
 import {
   Expand,
   FunctionReference,
+  GenericActionCtx,
   GenericDataModel,
   GenericMutationCtx,
   GenericQueryCtx,
@@ -10,16 +11,12 @@ import { api } from "../component/_generated/api";
 
 export class Client {
   constructor(
-    public component: UseApi<typeof api>,
-    public options?: {}
+    public component: UseApi<typeof api>
+    // public options?: {}
   ) {}
-  async add(ctx: RunMutationCtx) {}
-  // async count<Name extends string = keyof Shards & string>(
-  //   ctx: RunQueryCtx,
-  //   name: Name
-  // ) {
-  //   return ctx.runQuery(this.component.public.count, { name });
-  // }
+  async get(ctx: RunActionCtx, key: string, functionHandle: string) {
+    return ctx.runAction(this.component.public.get, { key, functionHandle });
+  }
 }
 
 /* Type utils follow */
@@ -29,6 +26,9 @@ type RunQueryCtx = {
 };
 type RunMutationCtx = {
   runMutation: GenericMutationCtx<GenericDataModel>["runMutation"];
+};
+type RunActionCtx = {
+  runAction: GenericActionCtx<GenericDataModel>["runAction"];
 };
 
 export type OpaqueIds<T> =

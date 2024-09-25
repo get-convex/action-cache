@@ -50,7 +50,7 @@ export type Mounts = {
       "action",
       "public",
       { functionHandle: string; key: string },
-      any
+      Array<number>
     >;
   };
 };

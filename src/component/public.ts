@@ -8,6 +8,7 @@ export const get = action({
     key: v.string(),
     functionHandle: v.string(),
   },
+  returns: v.array(v.number()),
   handler: async (ctx, { key, functionHandle }) => {
     const cached: number[] | null = (await ctx.runMutation(api.cache.get, {
       key,
@@ -21,5 +22,6 @@ export const get = action({
       }
     );
     await ctx.runMutation(api.cache.put, { key, value });
+    return value;
   },
 });

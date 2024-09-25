@@ -13,9 +13,18 @@ export const get = mutation({
       .collect();
     if (match.length > 1)
       throw new Error(`Found multiple values for key: ${key}`);
-    if (!match) return null;
-    await ctx.db.insert("lastUpdated", {
-      valuesId: match[0]._id,
+    if (match.length == 0) return null;
+    const valuesId = match[0]._id;
+    const lastUpdatedWithId = await ctx.db
+      .query("lastUpdated")
+      .withIndex("valuesId", (q) => q.eq("valuesId", valuesId))
+      .collect();
+    if (lastUpdatedWithId.length != 1)
+      throw new Error(
+        `Expected exactly one lastUpdated doc for valuesId: ${valuesId}`
+      );
+    const lastUpdatedDoc = lastUpdatedWithId[0];
+    await ctx.db.patch(lastUpdatedDoc._id, {
       lastUpdated: Date.now(),
     });
     return match[0].value;

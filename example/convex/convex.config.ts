@@ -1,7 +1,7 @@
 import { defineApp } from "convex/server";
-import counter from "@convex-dev/counter/convex.config";
+import cache from "@convex-dev/cache/convex.config";
 
 const app = defineApp();
-app.use(counter);
+app.use(cache);
 
 export default app;
