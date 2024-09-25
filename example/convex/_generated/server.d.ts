@@ -153,11 +153,17 @@ export type DatabaseWriter = GenericDatabaseWriter<DataModel>;
 export declare const components: {
   counter: {
     cache: {
-      getFromCache: FunctionReference<
+      get: FunctionReference<
         "mutation",
         "internal",
         { key: string },
         Array<number> | null
+      >;
+      put: FunctionReference<
+        "mutation",
+        "internal",
+        { key: string; value: Array<number> },
+        any
       >;
     };
     public: {
@@ -165,7 +171,7 @@ export declare const components: {
         "action",
         "internal",
         { functionHandle: string; key: string },
-        Array<number>
+        any
       >;
     };
   };

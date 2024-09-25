@@ -32,11 +32,17 @@ declare const fullApi: ApiFromModules<{
 }>;
 export type Mounts = {
   cache: {
-    getFromCache: FunctionReference<
+    get: FunctionReference<
       "mutation",
       "public",
       { key: string },
       Array<number> | null
+    >;
+    put: FunctionReference<
+      "mutation",
+      "public",
+      { key: string; value: Array<number> },
+      any
     >;
   };
   public: {
@@ -44,7 +50,7 @@ export type Mounts = {
       "action",
       "public",
       { functionHandle: string; key: string },
-      Array<number>
+      any
     >;
   };
 };
