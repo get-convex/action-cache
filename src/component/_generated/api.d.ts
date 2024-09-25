@@ -52,6 +52,7 @@ export type Mounts = {
       { functionHandle: string; key: string },
       Array<number>
     >;
+    purge: FunctionReference<"mutation", "public", { ts: number }, any>;
   };
 };
 // For now fullApiWithMounts is only fullApi which provides

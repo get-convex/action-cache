@@ -173,6 +173,7 @@ export declare const components: {
         { functionHandle: string; key: string },
         Array<number>
       >;
+      purge: FunctionReference<"mutation", "internal", { ts: number }, any>;
     };
   };
 };

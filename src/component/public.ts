@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { action } from "./_generated/server";
+import { action, mutation } from "./_generated/server";
 import { api } from "./_generated/api";
 import { FunctionHandle } from "convex/server";
 
@@ -23,5 +23,23 @@ export const get = action({
     );
     await ctx.runMutation(api.cache.put, { key, value });
     return value;
+  },
+});
+
+export const purge = mutation({
+  args: {
+    ts: v.float64(),
+  },
+  handler: async (ctx, { ts }) => {
+    const valuesToDelete = await ctx.db
+      .query("lastUpdated")
+      .withIndex("lastUpdated", (q) => q.lt("lastUpdated", ts))
+      .collect();
+    const deletions = [];
+    for (const value of valuesToDelete) {
+      deletions.push(ctx.db.delete(value._id));
+      deletions.push(ctx.db.delete(value.valuesId));
+    }
+    await Promise.all(deletions);
   },
 });

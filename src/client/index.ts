@@ -17,6 +17,10 @@ export class Client {
   async get(ctx: RunActionCtx, key: string, functionHandle: string) {
     return ctx.runAction(this.component.public.get, { key, functionHandle });
   }
+
+  async purge(ctx: RunMutationCtx, ts: number) {
+    return ctx.runMutation(this.component.public.purge, { ts });
+  }
 }
 
 /* Type utils follow */

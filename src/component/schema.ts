@@ -9,5 +9,7 @@ export default defineSchema({
   lastUpdated: defineTable({
     valuesId: v.id("values"),
     lastUpdated: v.float64(),
-  }).index("valuesId", ["valuesId"]),
+  })
+    .index("valuesId", ["valuesId"])
+    .index("lastUpdated", ["lastUpdated"]),
 });
