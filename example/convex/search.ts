@@ -1,6 +1,6 @@
 import { action, components } from "./_generated/server";
 import { v } from "convex/values";
-import { SearchResult, embed } from "./vectorDemo";
+import { SearchResult } from "./vectorDemo";
 import { api, internal } from "./_generated/api";
 import { Client } from "@convex-dev/cache";
 import { createFunctionHandle } from "convex/server";
