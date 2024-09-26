@@ -16,7 +16,7 @@ export const get = mutation({
     if (match.length == 0) return null;
     const valuesId = match[0]._id;
     const lastUpdatedWithId = await ctx.db
-      .query("lastUpdated")
+      .query("lastUsed")
       .withIndex("valuesId", (q) => q.eq("valuesId", valuesId))
       .collect();
     if (lastUpdatedWithId.length != 1)
@@ -25,7 +25,7 @@ export const get = mutation({
       );
     const lastUpdatedDoc = lastUpdatedWithId[0];
     await ctx.db.patch(lastUpdatedDoc._id, {
-      lastUpdated: Date.now(),
+      lastUsed: Date.now(),
     });
     return match[0].value;
   },
@@ -38,9 +38,9 @@ export const put = mutation({
   },
   handler: async (ctx, { key, value }) => {
     const id = await ctx.db.insert("values", { key, value });
-    await ctx.db.insert("lastUpdated", {
+    await ctx.db.insert("lastUsed", {
       valuesId: id,
-      lastUpdated: Date.now(),
+      lastUsed: Date.now(),
     });
   },
 });

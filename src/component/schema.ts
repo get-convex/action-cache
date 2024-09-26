@@ -6,10 +6,10 @@ export default defineSchema({
     key: v.string(), // Is it possible to generalize this?
     value: v.array(v.number()),
   }).index("key", ["key"]),
-  lastUpdated: defineTable({
+  lastUsed: defineTable({
     valuesId: v.id("values"),
-    lastUpdated: v.float64(),
+    lastUsed: v.float64(),
   })
     .index("valuesId", ["valuesId"])
-    .index("lastUpdated", ["lastUpdated"]),
+    .index("lastUsed", ["lastUsed"]),
 });
