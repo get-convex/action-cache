@@ -4,7 +4,6 @@ import {
   GenericActionCtx,
   GenericDataModel,
   GenericMutationCtx,
-  GenericQueryCtx,
 } from "convex/server";
 import { GenericId } from "convex/values";
 import { api } from "../component/_generated/api";

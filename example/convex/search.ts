@@ -1,7 +1,8 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { getEmbedding, SearchResult } from "./vectorDemo";
+import { SearchResult } from "./vectorDemo";
 import { internal } from "./_generated/api";
+import { getEmbedding } from "./cache";
 
 export const vectorSearch = action({
   args: { query: v.string(), cuisines: v.optional(v.array(v.string())) },

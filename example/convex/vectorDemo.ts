@@ -4,13 +4,10 @@ import {
   action,
   internalMutation,
   internalQuery,
-  ActionCtx,
-  components,
 } from "./_generated/server";
-import { api, internal } from "./_generated/api";
+import { internal } from "./_generated/api";
 import { CUISINES, EXAMPLE_DATA } from "./constants";
-import { Client } from "@convex-dev/cache";
-import { createFunctionHandle } from "convex/server";
+import { getEmbedding } from "./cache";
 
 export type SearchResult = {
   _id: string;
@@ -18,13 +15,6 @@ export type SearchResult = {
   cuisine: string;
   _score: number;
 };
-
-const cacheClient = new Client(components.cache);
-
-export async function getEmbedding(ctx: ActionCtx, text: string) {
-  const functionHandle = await createFunctionHandle(api.vectorDemo.embed);
-  return await cacheClient.get(ctx, text, functionHandle);
-}
 
 export const embed = action({
   args: { key: v.string() },

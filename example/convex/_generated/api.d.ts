@@ -10,6 +10,7 @@
  * @module
  */
 
+import type * as cache from "../cache.js";
 import type * as constants from "../constants.js";
 import type * as crons from "../crons.js";
 import type * as search from "../search.js";
@@ -29,6 +30,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  cache: typeof cache;
   constants: typeof constants;
   crons: typeof crons;
   search: typeof search;
