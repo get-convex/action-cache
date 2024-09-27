@@ -32,8 +32,8 @@ export const purge = mutation({
   },
   handler: async (ctx, { ts }) => {
     const valuesToDelete = await ctx.db
-      .query("lastUpdated")
-      .withIndex("lastUpdated", (q) => q.lt("lastUpdated", ts))
+      .query("lastUsed")
+      .withIndex("lastUsed", (q) => q.lt("lastUsed", ts))
       .collect();
     const deletions = [];
     for (const value of valuesToDelete) {
