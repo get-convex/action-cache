@@ -10,12 +10,12 @@ import { GenericId } from "convex/values";
 import { api } from "../component/_generated/api";
 
 export class Client {
-  constructor(
-    public component: UseApi<typeof api>
-    // public options?: {}
-  ) {}
+  constructor(public component: UseApi<typeof api>) {}
   async get(ctx: RunActionCtx, key: string, functionHandle: string) {
-    return ctx.runAction(this.component.public.get, { key, functionHandle });
+    return ctx.runAction(this.component.public.get, {
+      key: key,
+      functionHandle,
+    });
   }
 
   async purge(ctx: RunMutationCtx, ts: number) {
@@ -25,9 +25,6 @@ export class Client {
 
 /* Type utils follow */
 
-type RunQueryCtx = {
-  runQuery: GenericQueryCtx<GenericDataModel>["runQuery"];
-};
 type RunMutationCtx = {
   runMutation: GenericMutationCtx<GenericDataModel>["runMutation"];
 };

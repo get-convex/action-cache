@@ -11,6 +11,7 @@
  */
 
 import type * as constants from "../constants.js";
+import type * as crons from "../crons.js";
 import type * as search from "../search.js";
 import type * as vectorDemo from "../vectorDemo.js";
 
@@ -29,6 +30,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   constants: typeof constants;
+  crons: typeof crons;
   search: typeof search;
   vectorDemo: typeof vectorDemo;
 }>;

@@ -4,9 +4,13 @@ import {
   action,
   internalMutation,
   internalQuery,
+  ActionCtx,
+  components,
 } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { CUISINES, EXAMPLE_DATA } from "./constants";
+import { Client } from "@convex-dev/cache";
+import { createFunctionHandle } from "convex/server";
 
 export type SearchResult = {
   _id: string;
@@ -15,41 +19,45 @@ export type SearchResult = {
   _score: number;
 };
 
-export const embedAction = action({
+const cacheClient = new Client(components.cache);
+
+export async function getEmbedding(ctx: ActionCtx, text: string) {
+  const functionHandle = await createFunctionHandle(api.vectorDemo.embed);
+  return await cacheClient.get(ctx, text, functionHandle);
+}
+
+export const embed = action({
   args: { key: v.string() },
-  handler: async (ctx, args) => {
-    return await embed(args.key);
+  handler: async (_ctx, { key }) => {
+    const apiKey = process.env.OPENAI_KEY;
+    if (!apiKey) {
+      throw new Error("OPENAI_KEY environment variable not set!");
+    }
+    const req = { input: key, model: "text-embedding-ada-002" };
+    const resp = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(req),
+    });
+    if (!resp.ok) {
+      const msg = await resp.text();
+      throw new Error(`OpenAI API error: ${msg}`);
+    }
+    const json = await resp.json();
+    const vector = json["data"][0]["embedding"];
+    console.log(`Computed embedding of "${key}": ${vector.length} dimensions`);
+    return vector;
   },
 });
-export async function embed(text: string): Promise<number[]> {
-  const key = process.env.OPENAI_KEY;
-  if (!key) {
-    throw new Error("OPENAI_KEY environment variable not set!");
-  }
-  const req = { input: text, model: "text-embedding-ada-002" };
-  const resp = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify(req),
-  });
-  if (!resp.ok) {
-    const msg = await resp.text();
-    throw new Error(`OpenAI API error: ${msg}`);
-  }
-  const json = await resp.json();
-  const vector = json["data"][0]["embedding"];
-  console.log(`Computed embedding of "${text}": ${vector.length} dimensions`);
-  return vector;
-}
 
 export const populate = action({
   args: {},
   handler: async (ctx) => {
     for (const doc of EXAMPLE_DATA) {
-      const embedding = await embed(doc.description);
+      const embedding = await getEmbedding(ctx, doc.description);
       await ctx.runMutation(internal.vectorDemo.insertRow, {
         cuisine: doc.cuisine,
         description: doc.description,
@@ -62,7 +70,7 @@ export const populate = action({
 export const insert = action({
   args: { cuisine: v.string(), description: v.string() },
   handler: async (ctx, args) => {
-    const embedding = await embed(args.description);
+    const embedding = await getEmbedding(ctx, args.description);
     const doc = {
       cuisine: args.cuisine,
       description: args.description,
