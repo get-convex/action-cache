@@ -8,6 +8,7 @@ const DAY = 24 * HOUR;
 
 /**
  * Get a value from the cache, optionally updating its expiration.
+ * If you don't provide an expiration, it will just return the value or null.
  * If expiration is null, it will ensure there isn't an expiration set for it.
  * If expiration is a number, it will set the expiration to that number of milliseconds from now,
  * unless it won't expire soon (defined by expiration time - one day).
@@ -16,7 +17,7 @@ export const get = mutation({
   args: {
     name: v.string(),
     args: v.any(),
-    expiration: v.union(v.float64(), v.null()),
+    expiration: v.optional(v.union(v.float64(), v.null())),
   },
   returns: v.union(v.any(), v.null()),
   handler: getInner,
@@ -24,13 +25,16 @@ export const get = mutation({
 
 async function getInner(
   ctx: MutationCtx,
-  args: { name: string; args: unknown; expiration: number | null | undefined }
+  args: { name: string; args: unknown; expiration?: number | null | undefined }
 ) {
   const match = await ctx.db
     .query("values")
     .withIndex("key", (q) => q.eq("name", args.name).eq("args", args.args))
     .unique();
   if (!match) return null;
+  if (args.expiration === undefined) {
+    return match;
+  }
   const expirationDoc =
     match.expirationId && (await ctx.db.get(match.expirationId));
   if (args.expiration == null) {
