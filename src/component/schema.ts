@@ -3,13 +3,13 @@ import { v } from "convex/values";
 
 export default defineSchema({
   values: defineTable({
-    key: v.string(), // Is it possible to generalize this?
+    name: v.string(),
+    args: v.any(),
     value: v.array(v.number()),
-  }).index("key", ["key"]),
-  lastUsed: defineTable({
-    valuesId: v.id("values"),
-    lastUsed: v.float64(),
-  })
-    .index("valuesId", ["valuesId"])
-    .index("lastUsed", ["lastUsed"]),
+    expirationId: v.optional(v.id("expirations")),
+  }).index("key", ["name", "args"]),
+  expirations: defineTable({
+    valueId: v.id("values"),
+    expiresAt: v.float64(),
+  }).index("expiresAt", ["expiresAt"]),
 });
