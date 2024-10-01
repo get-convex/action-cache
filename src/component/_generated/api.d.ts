@@ -11,6 +11,7 @@
  */
 
 import type * as cache from "../cache.js";
+import type * as crons from "../crons.js";
 import type * as public from "../public.js";
 
 import type {
@@ -28,6 +29,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   cache: typeof cache;
+  crons: typeof crons;
   public: typeof public;
 }>;
 export type Mounts = {
@@ -35,24 +37,48 @@ export type Mounts = {
     get: FunctionReference<
       "mutation",
       "public",
-      { key: string },
-      Array<number> | null
+      { args: any; expiration: number | null; name: string },
+      any | null
     >;
     put: FunctionReference<
       "mutation",
       "public",
-      { key: string; value: Array<number> },
+      {
+        args: any;
+        expiration: number | null;
+        name: string;
+        value: Array<number>;
+      },
       any
     >;
   };
+  crons: {
+    purge: FunctionReference<
+      "mutation",
+      "public",
+      { expiresAt?: number },
+      null
+    >;
+  };
   public: {
-    get: FunctionReference<
+    getOrCreate: FunctionReference<
       "action",
       "public",
-      { functionHandle: string; key: string },
-      Array<number>
+      { args: any; expiration: number | null; fn: string; name: string },
+      any
     >;
-    purge: FunctionReference<"mutation", "public", { ts: number }, any>;
+    remove: FunctionReference<
+      "mutation",
+      "public",
+      { args: any; name: string },
+      null
+    >;
+    removeAll: FunctionReference<
+      "mutation",
+      "public",
+      { after?: number; name?: string },
+      null
+    >;
   };
 };
 // For now fullApiWithMounts is only fullApi which provides

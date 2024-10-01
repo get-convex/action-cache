@@ -4,26 +4,25 @@ import {
   action,
   internalMutation,
   internalQuery,
+  internalAction,
 } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { internal, components } from "./_generated/api";
 import { CUISINES, EXAMPLE_DATA } from "./constants";
-import { getEmbedding } from "./cache";
+import { ActionCache } from "@convex-dev/action-cache";
 
-export type SearchResult = {
-  _id: string;
-  description: string;
-  cuisine: string;
-  _score: number;
-};
+const cachedEmbed = new ActionCache(components.cache, {
+  action: internal.example.embed,
+  name: "embed-v1",
+});
 
-export const embed = action({
-  args: { key: v.string() },
-  handler: async (_ctx, { key }) => {
+export const embed = internalAction({
+  args: { text: v.string() },
+  handler: async (_ctx, { text }) => {
     const apiKey = process.env.OPENAI_KEY;
     if (!apiKey) {
       throw new Error("OPENAI_KEY environment variable not set!");
     }
-    const req = { input: key, model: "text-embedding-ada-002" };
+    const req = { input: text, model: "text-embedding-ada-002" };
     const resp = await fetch("https://api.openai.com/v1/embeddings", {
       method: "POST",
       headers: {
@@ -38,8 +37,8 @@ export const embed = action({
     }
     const json = await resp.json();
     const vector = json["data"][0]["embedding"];
-    console.log(`Computed embedding of "${key}": ${vector.length} dimensions`);
-    return vector;
+    console.log(`Computed embedding of "${text}": ${vector.length} dimensions`);
+    return vector as number[];
   },
 });
 
@@ -47,8 +46,10 @@ export const populate = action({
   args: {},
   handler: async (ctx) => {
     for (const doc of EXAMPLE_DATA) {
-      const embedding = await getEmbedding(ctx, doc.description);
-      await ctx.runMutation(internal.vectorDemo.insertRow, {
+      const embedding = await cachedEmbed.getOrCreate(ctx, {
+        text: doc.description,
+      });
+      await ctx.runMutation(internal.example.insertRow, {
         cuisine: doc.cuisine,
         description: doc.description,
         embedding,
@@ -60,13 +61,15 @@ export const populate = action({
 export const insert = action({
   args: { cuisine: v.string(), description: v.string() },
   handler: async (ctx, args) => {
-    const embedding = await getEmbedding(ctx, args.description);
+    const embedding = await cachedEmbed.getOrCreate(ctx, {
+      text: args.description,
+    });
     const doc = {
       cuisine: args.cuisine,
       description: args.description,
       embedding,
     };
-    await ctx.runMutation(internal.vectorDemo.insertRow, doc);
+    await ctx.runMutation(internal.example.insertRow, doc);
   },
 });
 
@@ -132,3 +135,37 @@ export const fullTextSearch = query({
       .collect();
   },
 });
+
+export const vectorSearch = action({
+  args: { query: v.string(), cuisines: v.optional(v.array(v.string())) },
+  handler: async (ctx, args) => {
+    const embedding = await cachedEmbed.getOrCreate(ctx, { text: args.query });
+    let results;
+    const cuisines = args.cuisines;
+    if (cuisines !== undefined) {
+      results = await ctx.vectorSearch("foods", "by_embedding", {
+        vector: embedding,
+        limit: 16,
+        filter: (q) =>
+          q.or(...cuisines.map((cuisine) => q.eq("cuisine", cuisine))),
+      });
+    } else {
+      results = await ctx.vectorSearch("foods", "by_embedding", {
+        vector: embedding,
+        limit: 16,
+      });
+    }
+    const rows: SearchResult[] = await ctx.runQuery(
+      internal.example.fetchResults,
+      { results }
+    );
+    return rows;
+  },
+});
+
+export type SearchResult = {
+  _id: string;
+  description: string;
+  cuisine: string;
+  _score: number;
+};

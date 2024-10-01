@@ -10,11 +10,8 @@
  * @module
  */
 
-import type * as cache from "../cache.js";
 import type * as constants from "../constants.js";
-import type * as crons from "../crons.js";
-import type * as search from "../search.js";
-import type * as vectorDemo from "../vectorDemo.js";
+import type * as example from "../example.js";
 
 import type {
   ApiFromModules,
@@ -30,11 +27,8 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  cache: typeof cache;
   constants: typeof constants;
-  crons: typeof crons;
-  search: typeof search;
-  vectorDemo: typeof vectorDemo;
+  example: typeof example;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
@@ -53,24 +47,48 @@ export declare const components: {
       get: FunctionReference<
         "mutation",
         "internal",
-        { key: string },
-        Array<number> | null
+        { args: any; expiration: number | null; name: string },
+        any | null
       >;
       put: FunctionReference<
         "mutation",
         "internal",
-        { key: string; value: Array<number> },
+        {
+          args: any;
+          expiration: number | null;
+          name: string;
+          value: Array<number>;
+        },
         any
       >;
     };
+    crons: {
+      purge: FunctionReference<
+        "mutation",
+        "internal",
+        { expiresAt?: number },
+        null
+      >;
+    };
     public: {
-      get: FunctionReference<
+      getOrCreate: FunctionReference<
         "action",
         "internal",
-        { functionHandle: string; key: string },
-        Array<number>
+        { args: any; expiration: number | null; fn: string; name: string },
+        any
       >;
-      purge: FunctionReference<"mutation", "internal", { ts: number }, any>;
+      remove: FunctionReference<
+        "mutation",
+        "internal",
+        { args: any; name: string },
+        null
+      >;
+      removeAll: FunctionReference<
+        "mutation",
+        "internal",
+        { after?: number; name?: string },
+        null
+      >;
     };
   };
 };
