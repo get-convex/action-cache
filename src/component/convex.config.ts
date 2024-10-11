@@ -1,3 +1,6 @@
 import { defineComponent } from "convex/server";
+import crons from "@convex-dev/crons/convex.config";
 
-export default defineComponent("cache");
+const component = defineComponent("cache");
+component.use(crons);
+export default component;

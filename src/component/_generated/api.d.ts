@@ -11,7 +11,6 @@
  */
 
 import type * as cache from "../cache.js";
-import type * as crons from "../crons.js";
 import type * as public from "../public.js";
 
 import type {
@@ -29,11 +28,16 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   cache: typeof cache;
-  crons: typeof crons;
   public: typeof public;
 }>;
 export type Mounts = {
   cache: {
+    expire: FunctionReference<
+      "mutation",
+      "public",
+      { expiresAt?: number },
+      null
+    >;
     get: FunctionReference<
       "mutation",
       "public",
@@ -50,14 +54,6 @@ export type Mounts = {
         value: Array<number>;
       },
       any
-    >;
-  };
-  crons: {
-    purge: FunctionReference<
-      "mutation",
-      "public",
-      { expiresAt?: number },
-      null
     >;
   };
   public: {
@@ -95,6 +91,58 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  crons: {
+    public: {
+      del: FunctionReference<
+        "mutation",
+        "internal",
+        { identifier: { id: string } | { name: string } },
+        null
+      >;
+      get: FunctionReference<
+        "query",
+        "internal",
+        { identifier: { id: string } | { name: string } },
+        {
+          args: Record<string, any>;
+          functionHandle: string;
+          id: string;
+          name?: string;
+          schedule:
+            | { kind: "interval"; ms: number }
+            | { cronspec: string; kind: "cron" };
+        } | null
+      >;
+      list: FunctionReference<
+        "query",
+        "internal",
+        {},
+        Array<{
+          args: Record<string, any>;
+          functionHandle: string;
+          id: string;
+          name?: string;
+          schedule:
+            | { kind: "interval"; ms: number }
+            | { cronspec: string; kind: "cron" };
+        }>
+      >;
+      register: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          args: Record<string, any>;
+          functionHandle: string;
+          name?: string;
+          schedule:
+            | { kind: "interval"; ms: number }
+            | { cronspec: string; kind: "cron" };
+        },
+        string
+      >;
+    };
+  };
+};
 
 /* prettier-ignore-end */

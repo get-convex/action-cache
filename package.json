@@ -50,7 +50,10 @@
     }
   },
   "peerDependencies": {
-    "convex": "^1.16.3"
+    "convex": "~1.16.5"
+  },
+  "dependencies": {
+    "@convex-dev/crons": "^0.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

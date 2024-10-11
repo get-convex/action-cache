@@ -1,5 +1,9 @@
 import { v } from "convex/values";
 import { mutation, MutationCtx } from "./_generated/server";
+import { Crons } from "@convex-dev/crons";
+import { api, components, internal } from "./_generated/api";
+
+const crons = new Crons(components.crons);
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -82,10 +86,50 @@ export const put = mutation({
       const { expiration, ...rest } = args;
       const valueId = await ctx.db.insert("values", rest);
       if (expiration == null) return;
+      const expirationCron = await crons.get(ctx, { name: "expire" });
+      if (!expirationCron) {
+        await crons.register(
+          ctx,
+          { kind: "interval", ms: DAY },
+          api.cache.expire,
+          {}
+        );
+      }
       await ctx.db.insert("expirations", {
         valueId,
         expiresAt: Date.now() + expiration,
       });
+    }
+  },
+});
+
+export const expire = mutation({
+  args: {
+    expiresAt: v.optional(v.float64()),
+  },
+  returns: v.null(),
+  handler: async (ctx, { expiresAt }) => {
+    if (!expiresAt) expiresAt = Date.now() - DAY;
+    const valuesToDelete = await ctx.db
+      .query("expirations")
+      .withIndex("expiresAt", (q) =>
+        q.gt("expiresAt", 0).lte("expiresAt", expiresAt)
+      )
+      .order("desc")
+      .take(100);
+    const deletions = [];
+    for (const value of valuesToDelete) {
+      deletions.push(ctx.db.delete(value._id));
+      deletions.push(ctx.db.delete(value.valueId));
+    }
+    await Promise.all(deletions);
+    if (valuesToDelete.length === 100) {
+      console.log("More than 100 values to delete, scheduling another batch");
+      await ctx.scheduler.runAfter(0, api.cache.expire, {
+        expiresAt: expiresAt ? valuesToDelete[99].expiresAt : undefined,
+      });
+    } else {
+      console.log("Expiration complete");
     }
   },
 });
