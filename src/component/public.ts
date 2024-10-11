@@ -49,19 +49,21 @@ export const remove = mutation({
 export const removeAll = mutation({
   args: {
     name: v.optional(v.string()),
-    after: v.optional(v.float64()),
+    before: v.optional(v.float64()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { name, after } = args;
+    const { name, before } = args;
     const query = name
       ? ctx.db.query("values").withIndex("key", (q) => q.eq("name", name))
-      : after
+      : before
         ? ctx.db
             .query("values")
-            .withIndex("by_creation_time", (q) => q.gte("_creationTime", after))
+            .withIndex("by_creation_time", (q) =>
+              q.lte("_creationTime", before)
+            )
         : ctx.db.query("values");
-    const matches = await query.take(100);
+    const matches = await query.order("desc").take(100);
     for (const match of matches) {
       if (match.expirationId) {
         await ctx.db.delete(match.expirationId);
@@ -72,7 +74,7 @@ export const removeAll = mutation({
       await ctx.scheduler.runAfter(
         0,
         api.public.removeAll,
-        "name" in args ? { name } : { after: matches[99]._creationTime }
+        "name" in args ? { name } : { before: matches[99]._creationTime }
       );
     }
   },

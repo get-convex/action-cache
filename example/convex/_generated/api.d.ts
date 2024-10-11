@@ -86,7 +86,7 @@ export declare const components: {
       removeAll: FunctionReference<
         "mutation",
         "internal",
-        { after?: number; name?: string },
+        { before?: number; name?: string },
         null
       >;
     };

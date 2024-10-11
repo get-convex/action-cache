@@ -76,7 +76,7 @@ export type Mounts = {
     removeAll: FunctionReference<
       "mutation",
       "public",
-      { after?: number; name?: string },
+      { before?: number; name?: string },
       null
     >;
   };
