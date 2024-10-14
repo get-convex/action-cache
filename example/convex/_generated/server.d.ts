@@ -150,32 +150,4 @@ export type DatabaseReader = GenericDatabaseReader<DataModel>;
  */
 export type DatabaseWriter = GenericDatabaseWriter<DataModel>;
 
-export declare const components: {
-  cache: {
-    cache: {
-      get: FunctionReference<
-        "mutation",
-        "internal",
-        { key: string },
-        Array<number> | null
-      >;
-      put: FunctionReference<
-        "mutation",
-        "internal",
-        { key: string; value: Array<number> },
-        any
-      >;
-    };
-    public: {
-      get: FunctionReference<
-        "action",
-        "internal",
-        { functionHandle: string; key: string },
-        Array<number>
-      >;
-      purge: FunctionReference<"mutation", "internal", { ts: number }, any>;
-    };
-  };
-};
-
 /* prettier-ignore-end */

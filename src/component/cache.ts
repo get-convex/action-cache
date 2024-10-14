@@ -21,7 +21,7 @@ export const get = mutation({
       .collect();
     if (lastUpdatedWithId.length != 1)
       throw new Error(
-        `Expected exactly one lastUpdated doc for valuesId: ${valuesId}`
+        `Expected exactly one lastUpdated doc for valuesId: ${valuesId}`,
       );
     const lastUpdatedDoc = lastUpdatedWithId[0];
     await ctx.db.patch(lastUpdatedDoc._id, {

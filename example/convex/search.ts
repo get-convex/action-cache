@@ -25,7 +25,7 @@ export const vectorSearch = action({
     }
     const rows: SearchResult[] = await ctx.runQuery(
       internal.vectorDemo.fetchResults,
-      { results }
+      { results },
     );
     return rows;
   },

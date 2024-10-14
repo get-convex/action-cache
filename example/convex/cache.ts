@@ -1,7 +1,7 @@
 import { Client } from "@convex-dev/cache";
 import { createFunctionHandle } from "convex/server";
-import { ActionCtx, components, internalMutation } from "./_generated/server";
-import { api } from "./_generated/api";
+import { ActionCtx, internalMutation } from "./_generated/server";
+import { api, components } from "./_generated/api";
 
 const cacheClient = new Client(components.cache);
 

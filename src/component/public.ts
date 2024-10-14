@@ -19,7 +19,7 @@ export const get = action({
       functionHandle as FunctionHandle<"action", any, any>,
       {
         key,
-      }
+      },
     );
     await ctx.runMutation(api.cache.put, { key, value });
     return value;
