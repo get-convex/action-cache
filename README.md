@@ -4,7 +4,7 @@
 
 **Note: Convex Components are currently in beta.**
 
-Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional expiration. Expired entries are cleaned up via a cron job once a day.
+Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional expiration. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (which can be the function or version) and the arguments to the action that generates the cache values.
 
 ```ts
 import { Client } from "@convex-dev/cache";
