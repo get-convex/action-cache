@@ -14,7 +14,7 @@ export const getOrCreate = action({
   handler: async (ctx, args): Promise<unknown> => {
     const { fn, ...rest } = args;
     const cached = await ctx.runMutation(api.cache.get, rest);
-    if (cached !== null) return cached;
+    if (cached !== null) return cached.value;
 
     const value = await ctx.runAction(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

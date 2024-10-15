@@ -1,14 +1,14 @@
 import { FormEvent, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { SearchResult } from "../convex/vectorDemo";
 import { CUISINES } from "../convex/constants";
+import { SearchResult } from "../convex/example";
 
 function Insert() {
   const [description, setDescription] = useState("");
   const [cuisine, setCuisine] = useState("american");
   const [insertInProgress, setInsertInProgress] = useState(false);
-  const insert = useAction(api.vectorDemo.insert);
+  const insert = useAction(api.example.insert);
 
   async function handleInsert(event: FormEvent) {
     event.preventDefault();
@@ -55,15 +55,15 @@ function Search() {
   const [submittedSearchText, setSubmittedSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string[]>([]);
   const [submittedSearchFilter, setSubmittedSearchFilter] = useState<string[]>(
-    [],
+    []
   );
   const [searchResults, setSearchResults] = useState<
     SearchResult[] | undefined
   >();
   const [searchInProgress, setSearchInProgress] = useState(false);
 
-  const vectorSearch = useAction(api.search.vectorSearch);
-  const fullTextSearch = useQuery(api.vectorDemo.fullTextSearch, {
+  const vectorSearch = useAction(api.example.vectorSearch);
+  const fullTextSearch = useQuery(api.example.fullTextSearch, {
     query: submittedSearchText,
     cuisine:
       submittedSearchFilter.length !== 0 ? submittedSearchFilter[0] : undefined,
@@ -146,9 +146,9 @@ function Search() {
 }
 
 export default function App() {
-  const entries = useQuery(api.vectorDemo.list);
+  const entries = useQuery(api.example.list);
   const [submitted, setSubmitted] = useState(false);
-  const populate = useAction(api.vectorDemo.populate);
+  const populate = useAction(api.example.populate);
   return (
     <main>
       <h1>🍔 Food vector search</h1>
