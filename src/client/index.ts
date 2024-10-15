@@ -1,24 +1,58 @@
 import {
+  createFunctionHandle,
   Expand,
+  FunctionArgs,
   FunctionReference,
+  FunctionReturnType,
+  FunctionVisibility,
   GenericActionCtx,
   GenericDataModel,
   GenericMutationCtx,
+  getFunctionName,
 } from "convex/server";
 import { GenericId } from "convex/values";
 import { api } from "../component/_generated/api";
 
-export class Client {
-  constructor(public component: UseApi<typeof api>) {}
-  async get(ctx: RunActionCtx, key: string, functionHandle: string) {
-    return ctx.runAction(this.component.public.get, {
-      key: key,
-      functionHandle,
+export class ActionCache<
+  Action extends FunctionReference<"action", FunctionVisibility>,
+> {
+  public name: string;
+  constructor(
+    public component: UseApi<typeof api>,
+    private args: {
+      action: Action;
+      name?: string;
+      expiration?: number;
+    }
+  ) {
+    this.name = this.args.name || getFunctionName(this.args.action);
+  }
+  async getOrCreate(ctx: RunActionCtx, args: FunctionArgs<Action>) {
+    const fn = await createFunctionHandle(this.args.action);
+
+    return ctx.runAction(this.component.public.getOrCreate, {
+      fn,
+      name: this.name,
+      args,
+      expiration: this.args.expiration || null,
+    }) as FunctionReturnType<Action>;
+  }
+
+  async remove(ctx: RunMutationCtx, args: FunctionArgs<Action>) {
+    return ctx.runMutation(this.component.public.remove, {
+      name: this.name,
+      args,
     });
   }
 
-  async purge(ctx: RunMutationCtx, ts: number) {
-    return ctx.runMutation(this.component.public.purge, { ts });
+  async removeAllForAction(ctx: RunMutationCtx) {
+    return ctx.runMutation(this.component.public.removeAll, {
+      name: this.name,
+    });
+  }
+
+  async removeAll(ctx: RunMutationCtx, component: UseApi<typeof api>) {
+    return ctx.runMutation(component.public.removeAll, {});
   }
 }
 
