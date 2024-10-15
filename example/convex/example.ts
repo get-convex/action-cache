@@ -10,7 +10,7 @@ import { internal, components } from "./_generated/api";
 import { CUISINES, EXAMPLE_DATA } from "./constants";
 import { ActionCache } from "@convex-dev/action-cache";
 
-const cachedEmbed = new ActionCache(components.cache, {
+const embeddingsCache = new ActionCache(components.cache, {
   action: internal.example.embed,
   name: "embed-v1",
 });
@@ -46,7 +46,7 @@ export const populate = action({
   args: {},
   handler: async (ctx) => {
     for (const doc of EXAMPLE_DATA) {
-      const embedding = await cachedEmbed.getOrCreate(ctx, {
+      const embedding = await embeddingsCache.getOrCreate(ctx, {
         text: doc.description,
       });
       await ctx.runMutation(internal.example.insertRow, {
@@ -61,7 +61,7 @@ export const populate = action({
 export const insert = action({
   args: { cuisine: v.string(), description: v.string() },
   handler: async (ctx, args) => {
-    const embedding = await cachedEmbed.getOrCreate(ctx, {
+    const embedding = await embeddingsCache.getOrCreate(ctx, {
       text: args.description,
     });
     const doc = {
@@ -139,7 +139,9 @@ export const fullTextSearch = query({
 export const vectorSearch = action({
   args: { query: v.string(), cuisines: v.optional(v.array(v.string())) },
   handler: async (ctx, args) => {
-    const embedding = await cachedEmbed.getOrCreate(ctx, { text: args.query });
+    const embedding = await embeddingsCache.getOrCreate(ctx, {
+      text: args.query,
+    });
     let results;
     const cuisines = args.cuisines;
     if (cuisines !== undefined) {
