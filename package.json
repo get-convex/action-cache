@@ -1,6 +1,19 @@
 {
   "name": "@convex-dev/action-cache",
-  "version": "0.0.0",
+  "description": "A Convex component for caching values that are expensive to compute",
+  "repository": "github:get-convex/action-cache",
+  "homepage": "https://github.com/get-convex/action-cache#readme",
+  "bugs": {
+    "email": "support@convex.dev",
+    "url": "https://github.com/get-convex/ratelimiter/issues"
+  },
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "keywords": [
+    "convex",
+    "component",
+    "cache"
+  ],
   "type": "module",
   "scripts": {
     "build": "npm run build:esm && npm run build:cjs",
