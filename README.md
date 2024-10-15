@@ -2,40 +2,32 @@
 
 **Note: Convex Components are currently in beta.**
 
-Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and purge them if they haven't been looked up recently.
+Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional expiration. Expired entries are cleaned up via a cron job once a day.
 
 ```ts
 import { Client } from "@convex-dev/cache";
 import { action, components } from "./_generated/server";
+import { ActionCache } from "@convex-dev/action-cache";
 
-export const cacheClient = new Client(components.cache);
-// Function handle that fetches the value you'd like to cache
-const myFunction = action({
-  args: { cacheKey: v.string() },
-  handler: async (ctx, { cacheKey }) => {
-    const functionHandle = await createFunctionHandle(
-      api.module.myExpensiveAction
-    );
-    const value = await cacheClient.get(ctx, cacheKey, functionHandle);
-    return value;
-  },
+const cache = new ActionCache(components.cache, {
+  action: internal.example.myExpensiveAction,
+  name: "myExpensiveActionV1",
 });
 
-// Purge records from the cache that were last used before `ts`.
-const purge = mutation({
-  args: { ts: v.float64() },
-  handler: async (ctx, { ts }) => {
-    await cacheClient.purge(ctx, ts);
+const myFunction = action({
+  args: { actionArgs: v.any() },
+  handler: async (ctx, { actionArgs }) => {
+    await cache.getOrCreate(ctx, actionArgs);
   },
 });
 ```
 
 ## Installation
 
-First, add `@convex-dev/cache` as an NPM dependency:
+First, add `@convex-dev/action-cache` as an NPM dependency:
 
 ```sh
-npm install @convex-dev/cache
+npm install @convex-dev/action-cache
 ```
 
 Then, install the component into your Convex project within the `convex/convex.config.ts` configuration file:
@@ -43,21 +35,31 @@ Then, install the component into your Convex project within the `convex/convex.c
 ```ts
 // convex/convex.config.ts
 import { defineApp } from "convex/server";
-import cache from "@convex-dev/cache/convex.config.js";
+import cache from "@convex-dev/action-cache/convex.config.js";
 
 const app = defineApp();
 app.use(cache);
+
 export default app;
 ```
 
-Finally, create a new `Client` within your Convex project, and point it to the installed component:
+Finally, create a new `ActionCache` with optional name and expiration within your Convex project, and point it to the installed component.
+
+- The `name` field can be used for identifying the function or version being used to create the values in the cache and can also be used for grouping entries to remove.
+- The `expiration` field determines how long the cache entries are kept, in milliseconds, debounced by day.
+  - If no `expiration` is provided, the cache entries are kept indefinitely.
+  - If an `expiration` is provided, whenever the cache value is read, the value is set to expire after the current time + expiration. There is a cron job that runs once a day to remove expired entries.
 
 ```ts
 // convex/index.ts
-import { Client } from "@convex-dev/cache";
+import { ActionCache } from "@convex-dev/cache";
 import { components } from "./_generated/api";
 
-export const cacheClient = new Client(components.cache);
+const cache = new ActionCache(components.cache, {
+  action: internal.example.myExpensiveAction,
+  name: "myExpensiveActionV1",
+  expiration: 1000 * 60 * 60 * 24 * 7, // 7 days
+});
 ```
 
 # 🧑‍🏫 What is Convex?
