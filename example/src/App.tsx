@@ -52,28 +52,17 @@ function presentCuisine(name: string, emoji: string) {
 
 function Search() {
   const [searchText, setSearchText] = useState("");
-  const [submittedSearchText, setSubmittedSearchText] = useState("");
   const [searchFilter, setSearchFilter] = useState<string[]>([]);
-  const [submittedSearchFilter, setSubmittedSearchFilter] = useState<string[]>(
-    []
-  );
   const [searchResults, setSearchResults] = useState<
     SearchResult[] | undefined
   >();
   const [searchInProgress, setSearchInProgress] = useState(false);
 
   const vectorSearch = useAction(api.example.vectorSearch);
-  const fullTextSearch = useQuery(api.example.fullTextSearch, {
-    query: submittedSearchText,
-    cuisine:
-      submittedSearchFilter.length !== 0 ? submittedSearchFilter[0] : undefined,
-  });
 
   const handleSearch = async (event: FormEvent) => {
     event.preventDefault();
     setSearchResults(undefined);
-    setSubmittedSearchText(searchText);
-    setSubmittedSearchFilter(searchFilter);
     if (!searchText) {
       return;
     }
@@ -122,19 +111,6 @@ function Search() {
                   <span>{(CUISINES as any)[result.cuisine]}</span>
                   <span>{result.description}</span>
                   <span>{result._score.toFixed(4)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="column">
-          <h3>Full Text Search Results</h3>
-          {fullTextSearch !== undefined && (
-            <ul>
-              {fullTextSearch.map((result) => (
-                <li key={result._id}>
-                  <span>{(CUISINES as any)[result.cuisine]}</span>
-                  <span>{result.description}</span>
                 </li>
               ))}
             </ul>

@@ -6,14 +6,9 @@ export default defineSchema({
     description: v.string(),
     cuisine: v.string(),
     embedding: v.array(v.float64()),
-  })
-    .vectorIndex("by_embedding", {
-      vectorField: "embedding",
-      dimensions: 1536,
-      filterFields: ["cuisine"],
-    })
-    .searchIndex("by_description", {
-      searchField: "description",
-      filterFields: ["cuisine"],
-    }),
+  }).vectorIndex("by_embedding", {
+    vectorField: "embedding",
+    dimensions: 1536,
+    filterFields: ["cuisine"],
+  }),
 });

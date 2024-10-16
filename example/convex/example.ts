@@ -116,26 +116,6 @@ export const fetchResults = internalQuery({
   },
 });
 
-export const fullTextSearch = query({
-  args: {
-    query: v.string(),
-    cuisine: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("foods")
-      .withSearchIndex("by_description", (q) => {
-        const result = q.search("description", args.query);
-        if (args.cuisine) {
-          return result.eq("cuisine", args.cuisine);
-        } else {
-          return result;
-        }
-      })
-      .collect();
-  },
-});
-
 export const vectorSearch = action({
   args: { query: v.string(), cuisines: v.optional(v.array(v.string())) },
   handler: async (ctx, args) => {
