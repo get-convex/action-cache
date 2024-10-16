@@ -7,10 +7,7 @@ const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
 /**
- * Get a value from the cache, optionally updating its expiration.
- * If expiration is null, it will ensure there isn't an expiration set for it.
- * If expiration is a number, it will set the expiration to that number of milliseconds from now,
- * unless it won't expire soon (defined by expiration time - one day).
+ * Get a value from the cache, returning null if it doesn't exist or has expired.
  */
 export const get = mutation({
   args: {
@@ -33,28 +30,12 @@ async function getInner(
   if (!match) return null;
   const expirationDoc =
     match.expirationId && (await ctx.db.get(match.expirationId));
-  if (args.expiration == null) {
-    if (expirationDoc) {
-      await ctx.db.delete(expirationDoc._id);
-      await ctx.db.patch(match._id, { expirationId: undefined });
-    }
-    return match;
-  }
-  const expiresAt = Date.now() + args.expiration;
-  if (!expirationDoc) {
-    const expirationId = await ctx.db.insert("expirations", {
-      valueId: match._id,
-      expiresAt,
-    });
-    await ctx.db.patch(match._id, { expirationId });
-    return match;
-  }
-  // Debounce updates by a day and update if the new expiration is before the old one.
-  if (
-    expirationDoc.expiresAt < expiresAt - DAY ||
-    expirationDoc.expiresAt > expiresAt
-  ) {
-    await ctx.db.patch(expirationDoc._id, { expiresAt });
+  // Invalidate expired values
+  if (expirationDoc && expirationDoc.expiresAt <= Date.now()) {
+    console.log("deleting old entry");
+    await ctx.db.delete(match._id);
+    await ctx.db.delete(expirationDoc._id);
+    return null;
   }
   return match;
 }
@@ -62,7 +43,7 @@ async function getInner(
 /**
  * Put a value into the cache. Updates the value if it already exists.
  * If expiration is non-null, it will set the expiration to that number of milliseconds from now.
- * If expiration is null, it won't expire unless a later `get` call sets an expiration.
+ * If expiration is null, it will never expire.
  */
 export const put = mutation({
   args: {

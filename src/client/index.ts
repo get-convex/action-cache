@@ -47,12 +47,12 @@ export class ActionCache<
    */
   constructor(
     public component: UseApi<typeof api>,
-    private config: ActionCacheConfig<Action>,
+    private config: ActionCacheConfig<Action>
   ) {
     this.name = this.config.name || getFunctionName(this.config.action);
   }
   /**
-   * Get the cache value for the given arguments, or create it if it doesn't exist.
+   * Get the cache value for the given arguments, or create it if it doesn't exist or is expired.
    * @param ctx - The Convex action context.
    * @param args - The arguments to the action the generates the cache values.
    * @returns - The cache value
