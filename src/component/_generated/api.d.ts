@@ -43,12 +43,7 @@ export type Mounts = {
     put: FunctionReference<
       "mutation",
       "public",
-      {
-        args: any;
-        expiration: number | null;
-        name: string;
-        value: Array<number>;
-      },
+      { args: any; expiration: number | null; name: string; value: any },
       any
     >;
   };
