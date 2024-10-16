@@ -37,7 +37,7 @@ export type Mounts = {
     get: FunctionReference<
       "mutation",
       "public",
-      { args: any; expiration?: number | null; name: string },
+      { args: any; expiration: number | null; name: string },
       any | null
     >;
     put: FunctionReference<

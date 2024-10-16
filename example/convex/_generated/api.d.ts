@@ -47,7 +47,7 @@ export declare const components: {
       get: FunctionReference<
         "mutation",
         "internal",
-        { args: any; expiration?: number | null; name: string },
+        { args: any; expiration: number | null; name: string },
         any | null
       >;
       put: FunctionReference<
