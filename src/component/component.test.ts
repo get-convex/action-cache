@@ -2,9 +2,10 @@ import { convexTest } from "convex-test";
 import schema from "./schema";
 import { expect, test } from "vitest";
 import { api } from "./_generated/api";
+import { modules } from "./setup.test";
 
 test("Insert into cache", async () => {
-  const t = convexTest(schema);
+  const t = convexTest(schema, modules);
   await t.mutation(api.cache.put, {
     name: "test",
     args: { key: "emma" },
