@@ -26,7 +26,6 @@ async function getInner(
   ctx: MutationCtx,
   args: { name: string; args: unknown; expiration: number | null }
 ) {
-  console.log("Inside cvxx date", Date.now());
   const match = await ctx.db
     .query("values")
     .withIndex("key", (q) => q.eq("name", args.name).eq("args", args.args))
@@ -43,7 +42,6 @@ async function getInner(
   }
   const expiresAt = Date.now() + args.expiration;
   if (!expirationDoc) {
-    console.log("Setting expiration", expiresAt);
     const expirationId = await ctx.db.insert("expirations", {
       valueId: match._id,
       expiresAt,
