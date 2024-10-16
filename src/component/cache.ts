@@ -51,9 +51,11 @@ async function getInner(
     await ctx.db.patch(match._id, { expirationId });
     return match;
   }
-  // Debounce updates by a day
-  if (expirationDoc.expiresAt < expiresAt - DAY) {
-    console.log("did not debounce", expirationDoc.expiresAt, expiresAt);
+  // Debounce updates by a day and update if the new expiration is before the old one.
+  if (
+    expirationDoc.expiresAt < expiresAt - DAY ||
+    expirationDoc.expiresAt > expiresAt
+  ) {
     await ctx.db.patch(expirationDoc._id, { expiresAt });
   }
   return match;

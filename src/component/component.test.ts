@@ -101,7 +101,7 @@ test("Getting with expiration more than a day past old one should update", async
   await t.mutation(api.cache.get, {
     name: "test",
     args: { key: "some random text" },
-    expiration: 1000 + DAY,
+    expiration: 2000 + DAY,
   });
   await t.run(async (ctx) => {
     const expirations = await ctx.db.query("expirations").collect();
@@ -157,6 +157,6 @@ test("Getting with expiration before existing expiration should update?", async 
   await t.run(async (ctx) => {
     const expirations = await ctx.db.query("expirations").collect();
     expect(expirations).toHaveLength(1);
-    // expect(expirations[0].expiresAt).eq(halfDayFromNow);
+    expect(expirations[0].expiresAt).eq(halfDayFromNow);
   });
 });
