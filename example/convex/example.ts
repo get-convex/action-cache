@@ -171,3 +171,16 @@ export type SearchResult = {
   cuisine: string;
   _score: number;
 };
+
+export const test = action({
+  args: {},
+  handler: async (ctx) => {
+    const embedding = await embeddingsCache.getOrCreate(ctx, {
+      text: "test",
+    });
+    if (embedding.length !== 1536) {
+      throw new Error(`Expected 1536 dimensions, got ${embedding.length}`);
+    }
+    console.log("Got embedding!");
+  },
+});
