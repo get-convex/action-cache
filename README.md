@@ -53,9 +53,9 @@ export default app;
 Finally, create a new `ActionCache` with optional name and expiration within your Convex project, and point it to the installed component.
 
 - The `name` field can be used for identifying the function or version being used to create the values in the cache and can also be used for grouping entries to remove.
-- The `expiration` field determines how long the cache entries are kept, in milliseconds, debounced by day.
+- The `expiration` field determines how long the cache entries are valid, in milliseconds.
   - If no `expiration` is provided, the cache entries are kept indefinitely.
-  - If an `expiration` is provided, whenever the cache value is read, the value is set to expire after the current time + expiration. There is a cron job that runs once a day to remove expired entries.
+  - If an `expiration` is provided, expired cache entries are deleted when they are retrieved and in a daily cron job.
 
 ```ts
 // convex/index.ts
