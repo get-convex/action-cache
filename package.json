@@ -66,9 +66,8 @@
       }
     }
   },
-  "dependencies": {
-    "convex": "^1.16.5",
-    "convex-test": "file:../convex-test/convex-test-0.0.31.tgz"
+  "peerDependencies": {
+    "convex": "~1.16.5 || ~1.17.0"
   },
   "devDependencies": {
     "@edge-runtime/vm": "^4.0.3",

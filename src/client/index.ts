@@ -86,7 +86,7 @@ export class ActionCache<
    * @param ctx - The Convex mutation context.
    * @returns
    */
-  async removeAllForAction(ctx: RunMutationCtx) {
+  async removeAllForName(ctx: RunMutationCtx) {
     return ctx.runMutation(this.component.public.removeAll, {
       name: this.name,
     });
@@ -95,11 +95,10 @@ export class ActionCache<
   /**
    * Clear all values in the cache.
    * @param ctx - The Convex mutation context.
-   * @param component - The registered action cache from `components`.
    * @returns
    */
-  async removeAll(ctx: RunMutationCtx, component: UseApi<typeof api>) {
-    return ctx.runMutation(component.public.removeAll, {});
+  async removeAll(ctx: RunMutationCtx) {
+    return ctx.runMutation(this.component.public.removeAll, {});
   }
 }
 

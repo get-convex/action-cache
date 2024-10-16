@@ -5,6 +5,7 @@ import {
   internalMutation,
   internalQuery,
   internalAction,
+  mutation,
 } from "./_generated/server";
 import { internal, components } from "./_generated/api";
 import { CUISINES, EXAMPLE_DATA } from "./constants";
@@ -162,5 +163,17 @@ export const test = action({
       throw new Error(`Expected 1536 dimensions, got ${embedding.length}`);
     }
     console.log("Got embedding!");
+  },
+});
+
+export const clear = mutation({
+  args: {},
+  handler: async (ctx, args) => {
+    // Remove one entry by arguments.
+    await embeddingsCache.remove(ctx, { text: "test" });
+    // Remove all entries for this function.
+    await embeddingsCache.removeAllForName(ctx);
+    // Remove all entries for all functions the component.
+    await embeddingsCache.removeAll(ctx);
   },
 });
