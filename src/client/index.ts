@@ -13,31 +13,67 @@ import {
 import { GenericId } from "convex/values";
 import { api } from "../component/_generated/api";
 
+export interface ActionCacheConfig<
+  Action extends FunctionReference<"action", FunctionVisibility>,
+> {
+  /**
+   * The action that generates the cache values.
+   */
+  action: Action;
+  /**
+   * The name of the action cache. The name is part of the cache key and can be
+   * used for versioning. Defaults to the name of the action.
+   */
+  name?: string;
+  /**
+   * Number of milliseconds to expire this cache entry after, debounced by a day.
+   * If not provided, the cache entry will be stored indefinitely.
+   */
+  expiration?: number;
+}
+
 export class ActionCache<
   Action extends FunctionReference<"action", FunctionVisibility>,
 > {
+  /**
+   * The name of the action cache. The name is part of the cache key and can be
+   * used for versioning. Defaults to the name of the action.
+   */
   public name: string;
+  /**
+   *
+   * @param component - The registered action cache from `components`.
+   * @param config - The configuration for this action cache.
+   */
   constructor(
     public component: UseApi<typeof api>,
-    private args: {
-      action: Action;
-      name?: string;
-      expiration?: number;
-    }
+    private config: ActionCacheConfig<Action>,
   ) {
-    this.name = this.args.name || getFunctionName(this.args.action);
+    this.name = this.config.name || getFunctionName(this.config.action);
   }
+  /**
+   * Get the cache value for the given arguments, or create it if it doesn't exist.
+   * @param ctx - The Convex action context.
+   * @param args - The arguments to the action the generates the cache values.
+   * @returns - The cache value
+   */
   async getOrCreate(ctx: RunActionCtx, args: FunctionArgs<Action>) {
-    const fn = await createFunctionHandle(this.args.action);
+    const fn = await createFunctionHandle(this.config.action);
 
     return ctx.runAction(this.component.public.getOrCreate, {
       fn,
       name: this.name,
       args,
-      expiration: this.args.expiration || null,
+      expiration: this.config.expiration || null,
     }) as FunctionReturnType<Action>;
   }
 
+  /**
+   * Removes the cache value for the given arguments.
+   * @param ctx - The Convex mutation context.
+   * @param args - The arguments to the action the generates the cache values.
+   * @returns
+   */
   async remove(ctx: RunMutationCtx, args: FunctionArgs<Action>) {
     return ctx.runMutation(this.component.public.remove, {
       name: this.name,
@@ -45,12 +81,23 @@ export class ActionCache<
     });
   }
 
+  /**
+   * Clear the cache of all values associated with the name of this `ActionCache`.
+   * @param ctx - The Convex mutation context.
+   * @returns
+   */
   async removeAllForAction(ctx: RunMutationCtx) {
     return ctx.runMutation(this.component.public.removeAll, {
       name: this.name,
     });
   }
 
+  /**
+   * Clear all values in the cache.
+   * @param ctx - The Convex mutation context.
+   * @param component - The registered action cache from `components`.
+   * @returns
+   */
   async removeAll(ctx: RunMutationCtx, component: UseApi<typeof api>) {
     return ctx.runMutation(component.public.removeAll, {});
   }
