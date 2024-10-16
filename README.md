@@ -6,7 +6,7 @@
 
 <!-- START: Include on https://convex.dev/components -->
 
-Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional expiration. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (which can be the function or version) and the arguments to the action that generates the cache values.
+Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional expiration. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (defaults to function name) and the arguments to the action that generates the cache values.
 
 ```ts
 import { Client } from "@convex-dev/cache";
@@ -15,21 +15,33 @@ import { ActionCache } from "@convex-dev/action-cache";
 
 const cache = new ActionCache(components.cache, {
   action: internal.example.myExpensiveAction,
-  name: "myExpensiveActionV1",
 });
 
-const myFunction = action({
-  args: { actionArgs: v.any() },
-  handler: async (ctx, { actionArgs }) => {
-    await cache.getOrCreate(ctx, actionArgs);
+export const myFunction = action({
+  handler: async (ctx, args) => {
+    // Call it with the parameters to `myExpensiveAction`
+    await cache.getOrCreate(ctx, { foo: "bar" });
   },
 });
+
+export const myExpensiveAction = internalAction({
+  args: { foo: v.string() },
+  handler: async (ctx, args) {
+    const data = await generateLLMResponse(ctx, args);
+    return data;
+  }
+})
 ```
 
-### Convex App
+To invalidate the cache, you can set a new name explicitly and/or clear cached values by name.
 
-You'll need a Convex App to use the component. Run `npm create convex` or
-follow any of the [Convex quickstarts](https://docs.convex.dev/home) to set one up.
+## Pre-requisite: Convex
+
+You'll need an existing Convex project to use the component.
+Convex is a hosted backend platform, including a database, serverless functions,
+and a ton more you can learn about [here](https://docs.convex.dev/get-started).
+
+Run `npm create convex` or follow any of the [quickstarts](https://docs.convex.dev/home) to set one up.
 
 ## Installation
 
@@ -125,26 +137,17 @@ Use the cache when you run a vector search:
 
 ```ts
 export const vectorSearch = action({
-  args: { query: v.string(), cuisines: v.optional(v.array(v.string())) },
+  args: { query: v.string(), cuisines: v.array(v.string()) },
   handler: async (ctx, args) => {
     const embedding = await embeddingsCache.getOrCreate(ctx, {
       text: args.query,
     });
-    let results;
-    const cuisines = args.cuisines;
-    if (cuisines !== undefined) {
-      results = await ctx.vectorSearch("foods", "by_embedding", {
-        vector: embedding,
-        limit: 16,
-        filter: (q) =>
-          q.or(...cuisines.map((cuisine) => q.eq("cuisine", cuisine))),
-      });
-    } else {
-      results = await ctx.vectorSearch("foods", "by_embedding", {
-        vector: embedding,
-        limit: 16,
-      });
-    }
+    const results = await ctx.vectorSearch("foods", "by_embedding", {
+      vector: embedding,
+      limit: 16,
+      filter: (q) =>
+        q.or(...args.cuisines.map((cuisine) => q.eq("cuisine", cuisine))),
+    });
     const rows: SearchResult[] = await ctx.runQuery(
       internal.example.fetchResults,
       { results }
@@ -153,6 +156,36 @@ export const vectorSearch = action({
   },
 });
 ```
+
+### Defining multiple caches
+
+You can use the same component for multiple actions, or multiple versions of the
+same action. You can specify a custom `name` arugment to denote which cache you
+want to use, or change the name to start fresh, like `embed-v2`.
+
+If the return value changes, it is important to change the name so you don't get unexpected values.
+
+### Clearing values
+
+To clear old values, you can:
+
+1. Remove one entry by arguments.
+
+   ```ts
+   await embeddingsCache.remove(ctx, { text: "target text" });
+   ```
+
+2. Remove all entries for the current name (defaults to function name).
+   This is useful if you updated the implementation and want to clear
+
+   ```ts
+   await embeddingsCache.removeAllForName(ctx);
+   ```
+
+3. Remove all entries in the component, including all names.
+   ```ts
+   await embeddingsCache.removeAll(ctx);
+   ```
 
 See more example usage in [example.ts](./example/convex/example.ts).
 
