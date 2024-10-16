@@ -69,7 +69,7 @@ export const put = mutation({
   args: {
     name: v.string(),
     args: v.any(),
-    value: v.array(v.number()),
+    value: v.any(),
     expiration: v.union(v.float64(), v.null()),
   },
   handler: async (ctx, args) => {

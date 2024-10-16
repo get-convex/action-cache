@@ -53,12 +53,7 @@ export declare const components: {
       put: FunctionReference<
         "mutation",
         "internal",
-        {
-          args: any;
-          expiration: number | null;
-          name: string;
-          value: Array<number>;
-        },
+        { args: any; expiration: number | null; name: string; value: any },
         any
       >;
     };
