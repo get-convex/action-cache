@@ -160,7 +160,7 @@ export const vectorSearch = action({
 ### Defining multiple caches
 
 You can use the same component for multiple actions, or multiple versions of the
-same action. You can specify a custom `name` arugment to denote which cache you
+same action. You can specify a custom `name` argument to denote which cache you
 want to use, or change the name to start fresh, like `embed-v2`.
 
 If the return value changes, it is important to change the name so you don't get unexpected values.
