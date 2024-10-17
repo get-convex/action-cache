@@ -1,6 +1,6 @@
 {
   "name": "@convex-dev/action-cache",
-  "description": "A Convex component for caching values that are expensive to compute",
+  "description": "A Convex component for caching values that are expensive to compute.",
   "repository": "github:get-convex/action-cache",
   "homepage": "https://github.com/get-convex/action-cache#readme",
   "bugs": {
@@ -29,8 +29,7 @@
   },
   "files": [
     "dist",
-    "src",
-    "react"
+    "src"
   ],
   "exports": {
     "./package.json": "./package.json",
@@ -44,18 +43,6 @@
         "@convex-dev/component-source": "./src/client/index.ts",
         "types": "./dist/commonjs/client/index.d.ts",
         "default": "./dist/commonjs/client/index.js"
-      }
-    },
-    "./react": {
-      "import": {
-        "@convex-dev/component-source": "./src/react/index.ts",
-        "types": "./dist/esm/react.d.ts",
-        "default": "./dist/esm/react.js"
-      },
-      "require": {
-        "@convex-dev/component-source": "./src/react/index.ts",
-        "types": "./dist/commonjs/react.d.ts",
-        "default": "./dist/commonjs/react.js"
       }
     },
     "./convex.config": {

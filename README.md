@@ -72,7 +72,6 @@ Finally, create a new `ActionCache` with optional name and expiration within you
   - If an `expiration` is provided, expired cache entries are deleted when they are retrieved and in a daily cron job.
 
 ```ts
-// convex/index.ts
 import { ActionCache } from "@convex-dev/cache";
 import { components } from "./_generated/api";
 
