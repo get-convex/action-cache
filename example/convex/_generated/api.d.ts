@@ -66,7 +66,7 @@ export declare const components: {
       >;
     };
     public: {
-      getOrCreate: FunctionReference<
+      fetch: FunctionReference<
         "action",
         "internal",
         { args: any; expiration: number | null; fn: string; name: string },

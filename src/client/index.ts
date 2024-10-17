@@ -52,15 +52,16 @@ export class ActionCache<
     this.name = this.config.name || getFunctionName(this.config.action);
   }
   /**
-   * Get the cache value for the given arguments, or create it if it doesn't exist or is expired.
+   * Fetch the cache value for the given arguments, calling the action to create it
+   * if the value is expired or does not exist.
    * @param ctx - The Convex action context.
    * @param args - The arguments to the action the generates the cache values.
    * @returns - The cache value
    */
-  async getOrCreate(ctx: RunActionCtx, args: FunctionArgs<Action>) {
+  async fetch(ctx: RunActionCtx, args: FunctionArgs<Action>) {
     const fn = await createFunctionHandle(this.config.action);
 
-    return ctx.runAction(this.component.public.getOrCreate, {
+    return ctx.runAction(this.component.public.fetch, {
       fn,
       name: this.name,
       args,

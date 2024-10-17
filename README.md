@@ -20,7 +20,7 @@ const cache = new ActionCache(components.actionCache, {
 export const myFunction = action({
   handler: async (ctx, args) => {
     // Call it with the parameters to `myExpensiveAction`
-    await cache.getOrCreate(ctx, { foo: "bar" });
+    await cache.fetch(ctx, { foo: "bar" });
   },
 });
 
@@ -138,7 +138,7 @@ Use the cache when you run a vector search:
 export const vectorSearch = action({
   args: { query: v.string(), cuisines: v.array(v.string()) },
   handler: async (ctx, args) => {
-    const embedding = await embeddingsCache.getOrCreate(ctx, {
+    const embedding = await embeddingsCache.fetch(ctx, {
       text: args.query,
     });
     const results = await ctx.vectorSearch("foods", "by_embedding", {

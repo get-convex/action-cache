@@ -3,7 +3,7 @@ import { action, mutation } from "./_generated/server";
 import { api } from "./_generated/api";
 import { FunctionHandle } from "convex/server";
 
-export const getOrCreate = action({
+export const fetch = action({
   args: {
     fn: v.string(),
     name: v.string(),

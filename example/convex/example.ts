@@ -47,7 +47,7 @@ export const populate = action({
   args: {},
   handler: async (ctx) => {
     for (const doc of EXAMPLE_DATA) {
-      const embedding = await embeddingsCache.getOrCreate(ctx, {
+      const embedding = await embeddingsCache.fetch(ctx, {
         text: doc.description,
       });
       await ctx.runMutation(internal.example.insertRow, {
@@ -62,7 +62,7 @@ export const populate = action({
 export const insert = action({
   args: { cuisine: v.string(), description: v.string() },
   handler: async (ctx, args) => {
-    const embedding = await embeddingsCache.getOrCreate(ctx, {
+    const embedding = await embeddingsCache.fetch(ctx, {
       text: args.description,
     });
     const doc = {
@@ -120,7 +120,7 @@ export const fetchResults = internalQuery({
 export const vectorSearch = action({
   args: { query: v.string(), cuisines: v.optional(v.array(v.string())) },
   handler: async (ctx, args) => {
-    const embedding = await embeddingsCache.getOrCreate(ctx, {
+    const embedding = await embeddingsCache.fetch(ctx, {
       text: args.query,
     });
     let results;
@@ -156,7 +156,7 @@ export type SearchResult = {
 export const test = action({
   args: {},
   handler: async (ctx) => {
-    const embedding = await embeddingsCache.getOrCreate(ctx, {
+    const embedding = await embeddingsCache.fetch(ctx, {
       text: "test",
     });
     if (embedding.length !== 1536) {

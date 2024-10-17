@@ -56,7 +56,7 @@ export type Mounts = {
     >;
   };
   public: {
-    getOrCreate: FunctionReference<
+    fetch: FunctionReference<
       "action",
       "public",
       { args: any; expiration: number | null; fn: string; name: string },
