@@ -13,7 +13,7 @@ import { Client } from "@convex-dev/cache";
 import { action, components } from "./_generated/server";
 import { ActionCache } from "@convex-dev/action-cache";
 
-const cache = new ActionCache(components.cache, {
+const cache = new ActionCache(components.actionCache, {
   action: internal.example.myExpensiveAction,
 });
 
@@ -76,7 +76,7 @@ Finally, create a new `ActionCache` with optional name and expiration within you
 import { ActionCache } from "@convex-dev/cache";
 import { components } from "./_generated/api";
 
-const cache = new ActionCache(components.cache, {
+const cache = new ActionCache(components.actionCache, {
   action: internal.example.myExpensiveAction,
   name: "myExpensiveActionV1",
   expiration: 1000 * 60 * 60 * 24 * 7, // 7 days
@@ -127,7 +127,7 @@ export const embed = internalAction({
 Create the embeddings cache:
 
 ```ts
-const embeddingsCache = new ActionCache(components.cache, {
+const embeddingsCache = new ActionCache(components.actionCache, {
   action: internal.example.embed,
   name: "embed-v1",
 });

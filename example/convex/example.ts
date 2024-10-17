@@ -11,7 +11,7 @@ import { internal, components } from "./_generated/api";
 import { CUISINES, EXAMPLE_DATA } from "./constants";
 import { ActionCache } from "@convex-dev/action-cache";
 
-const embeddingsCache = new ActionCache(components.cache, {
+const embeddingsCache = new ActionCache(components.actionCache, {
   action: internal.example.embed,
   name: "embed-v1",
 });
@@ -168,7 +168,7 @@ export const test = action({
 
 export const clear = mutation({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     // Remove one entry by arguments.
     await embeddingsCache.remove(ctx, { text: "test" });
     // Remove all entries for this function.
