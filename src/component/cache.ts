@@ -53,7 +53,7 @@ export const put = mutation({
   handler: async (ctx, args) => {
     const existing = await getInner(ctx, args);
     const { ttl, ...rest } = args;
-    const valueId = existing?._id ?? (await ctx.db.insert("values", rest));
+    const valueId = await ctx.db.insert("values", rest);
     let metadataId = existing?.metadataId ?? undefined;
     if (ttl === null) {
       if (metadataId) {
@@ -63,14 +63,16 @@ export const put = mutation({
     } else {
       const expiresAt = Date.now() + ttl;
       if (metadataId) {
-        await ctx.db.patch(metadataId, { expiresAt });
+        await ctx.db.patch(metadataId, { valueId, expiresAt });
       } else {
         metadataId = await ctx.db.insert("metadata", { valueId, expiresAt });
       }
     }
     await ctx.db.patch(valueId, {
-      value: args.value,
       metadataId,
     });
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
   },
 });
