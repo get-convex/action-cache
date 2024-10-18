@@ -12,7 +12,6 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     const empty = await t.mutation(api.cache.get, {
       name: "test",
       args: { key },
-      ttl: null,
     });
     expect(empty).toBeNull();
     await t.mutation(api.cache.put, {
@@ -24,7 +23,6 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     const result = await t.mutation(api.cache.get, {
       name: "test",
       args: { key },
-      ttl: null,
     });
     expect(result).not.toBeNull();
     expect(result?.value).toEqual(value);
@@ -49,7 +47,6 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     const result = await t.mutation(api.cache.get, {
       name: "test",
       args: { key },
-      ttl: null,
     });
     expect(result).not.toBeNull();
     expect(result?.value).toEqual(value);
@@ -69,7 +66,6 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     await t.mutation(api.cache.get, {
       name: "test",
       args: { key },
-      ttl: 1000,
     });
     await t.run(async (ctx) => {
       const metadata = await ctx.db.query("metadata").collect();
@@ -91,7 +87,6 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     const result = await t.mutation(api.cache.get, {
       name: "test",
       args: { key },
-      ttl: null,
     });
     expect(result).toBeNull();
   }

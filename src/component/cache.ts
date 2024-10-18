@@ -13,7 +13,6 @@ export const get = mutation({
   args: {
     name: v.string(),
     args: v.any(),
-    ttl: v.union(v.float64(), v.null()),
   },
   returns: v.union(v.any(), v.null()),
   handler: getInner,
@@ -21,7 +20,7 @@ export const get = mutation({
 
 async function getInner(
   ctx: MutationCtx,
-  args: { name: string; args: unknown; ttl: number | null }
+  args: { name: string; args: unknown }
 ) {
   const match = await ctx.db
     .query("values")
