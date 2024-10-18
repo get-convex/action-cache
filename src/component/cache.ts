@@ -49,6 +49,7 @@ export const put = mutation({
     value: v.any(),
     ttl: v.union(v.float64(), v.null()),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const existing = await getInner(ctx, args);
     const { ttl, ...rest } = args;
