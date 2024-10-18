@@ -53,31 +53,24 @@ export const put = mutation({
   handler: async (ctx, args) => {
     const existing = await getInner(ctx, args);
     const { ttl, ...rest } = args;
-    if (existing) {
-      if (existing.value !== args.value) {
-        await ctx.db.patch(existing._id, {
-          value: args.value,
-          metadataId: ttl === null ? undefined : existing.metadataId,
-        });
-        if (existing.metadataId) {
-          if (ttl === null) {
-            await ctx.db.delete(existing.metadataId);
-          } else {
-            await ctx.db.patch(existing.metadataId, {
-              expiresAt: Date.now() + ttl,
-            });
-          }
-        }
+    const valueId = existing?._id ?? (await ctx.db.insert("values", rest));
+    let metadataId = existing?.metadataId ?? undefined;
+    if (ttl === null) {
+      if (metadataId) {
+        await ctx.db.delete(metadataId);
       }
+      metadataId = undefined;
     } else {
-      const valueId = await ctx.db.insert("values", rest);
-      if (ttl !== null) {
-        const metadataId = await ctx.db.insert("metadata", {
-          valueId,
-          expiresAt: Date.now() + ttl,
-        });
-        await ctx.db.patch(valueId, { metadataId });
+      const expiresAt = Date.now() + ttl;
+      if (metadataId) {
+        await ctx.db.patch(metadataId, { expiresAt });
+      } else {
+        metadataId = await ctx.db.insert("metadata", { valueId, expiresAt });
       }
     }
+    await ctx.db.patch(valueId, {
+      value: args.value,
+      metadataId,
+    });
   },
 });
