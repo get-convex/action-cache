@@ -103,10 +103,12 @@ export class ActionCache<
   /**
    * Clear all values in the cache.
    * @param ctx - The Convex mutation context.
+   * @param before - (optional) Remove all values created before this timestamp.
+   * Defaults to now (all values).
    * @returns
    */
-  async removeAll(ctx: RunMutationCtx) {
-    return ctx.runMutation(this.component.public.removeAll, {});
+  async removeAll(ctx: RunMutationCtx, before?: number) {
+    return ctx.runMutation(this.component.public.removeAll, { before });
   }
 }
 

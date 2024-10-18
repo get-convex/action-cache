@@ -55,13 +55,11 @@ export const removeAll = mutation({
     const { name, before } = args;
     const query = name
       ? ctx.db.query("values").withIndex("key", (q) => q.eq("name", name))
-      : before
-        ? ctx.db
-            .query("values")
-            .withIndex("by_creation_time", (q) =>
-              q.lte("_creationTime", before)
-            )
-        : ctx.db.query("values");
+      : ctx.db
+          .query("values")
+          .withIndex("by_creation_time", (q) =>
+            q.lte("_creationTime", before ?? Date.now())
+          );
     const matches = await query.order("desc").take(100);
     for (const match of matches) {
       if (match.metadataId) {
@@ -73,7 +71,7 @@ export const removeAll = mutation({
       await ctx.scheduler.runAfter(
         0,
         api.public.removeAll,
-        "name" in args ? { name } : { before: matches[99]._creationTime }
+        name ? { name } : { before: matches[99]._creationTime }
       );
     }
   },
