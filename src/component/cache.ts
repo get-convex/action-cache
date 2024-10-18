@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, MutationCtx } from "./_generated/server";
+import { Doc } from "./_generated/dataModel";
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -15,26 +16,35 @@ export const get = mutation({
     args: v.any(),
   },
   returns: v.union(v.any(), v.null()),
-  handler: getInner,
+  handler: async (ctx, args) => {
+    const match = await lookup(ctx, args);
+    if (!match) return null;
+    const metadataDoc =
+      match.metadataId && (await ctx.db.get(match.metadataId));
+    // Invalidate expired values
+    if (metadataDoc && metadataDoc.expiresAt <= Date.now()) {
+      await del(ctx, match);
+      return null;
+    }
+    return match;
+  },
 });
 
-async function getInner(
+export async function lookup(
   ctx: MutationCtx,
   args: { name: string; args: unknown }
 ) {
-  const match = await ctx.db
+  return ctx.db
     .query("values")
     .withIndex("key", (q) => q.eq("name", args.name).eq("args", args.args))
     .unique();
-  if (!match) return null;
-  const metadataDoc = match.metadataId && (await ctx.db.get(match.metadataId));
-  // Invalidate expired values
-  if (metadataDoc && metadataDoc.expiresAt <= Date.now()) {
-    await ctx.db.delete(match._id);
-    await ctx.db.delete(metadataDoc._id);
-    return null;
+}
+
+export async function del(ctx: MutationCtx, value: Doc<"values">) {
+  if (value.metadataId) {
+    await ctx.db.delete(value.metadataId);
   }
-  return match;
+  await ctx.db.delete(value._id);
 }
 
 /**
@@ -51,28 +61,19 @@ export const put = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const existing = await getInner(ctx, args);
+    const existing = await lookup(ctx, args);
+    if (existing) await del(ctx, existing);
     const { ttl, ...rest } = args;
     const valueId = await ctx.db.insert("values", rest);
-    let metadataId = existing?.metadataId ?? undefined;
-    if (ttl === null) {
-      if (metadataId) {
-        await ctx.db.delete(metadataId);
-      }
-      metadataId = undefined;
-    } else {
+    if (ttl !== null) {
       const expiresAt = Date.now() + ttl;
-      if (metadataId) {
-        await ctx.db.patch(metadataId, { valueId, expiresAt });
-      } else {
-        metadataId = await ctx.db.insert("metadata", { valueId, expiresAt });
-      }
-    }
-    await ctx.db.patch(valueId, {
-      metadataId,
-    });
-    if (existing) {
-      await ctx.db.delete(existing._id);
+      const metadataId = await ctx.db.insert("metadata", {
+        valueId,
+        expiresAt,
+      });
+      await ctx.db.patch(valueId, {
+        metadataId,
+      });
     }
   },
 });

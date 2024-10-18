@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { action, mutation } from "./_generated/server";
 import { api } from "./_generated/api";
 import { FunctionHandle } from "convex/server";
+import { del, lookup } from "./cache";
 
 export const fetch = action({
   args: {
@@ -32,16 +33,9 @@ export const remove = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const match = await ctx.db
-      .query("values")
-      .withIndex("key", (q) => q.eq("name", args.name).eq("args", args.args))
-      .unique();
-
+    const match = await lookup(ctx, args);
     if (!match) return null;
-    if (match.metadataId) {
-      await ctx.db.delete(match.metadataId);
-    }
-    await ctx.db.delete(match._id);
+    await del(ctx, match);
   },
 });
 
@@ -62,10 +56,7 @@ export const removeAll = mutation({
           );
     const matches = await query.order("desc").take(100);
     for (const match of matches) {
-      if (match.metadataId) {
-        await ctx.db.delete(match.metadataId);
-      }
-      await ctx.db.delete(match._id);
+      await del(ctx, match);
     }
     if (matches.length === 100) {
       await ctx.scheduler.runAfter(
