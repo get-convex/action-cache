@@ -8,7 +8,7 @@ export const fetch = action({
     fn: v.string(),
     name: v.string(),
     args: v.any(),
-    expiration: v.union(v.float64(), v.null()),
+    ttl: v.union(v.float64(), v.null()),
   },
   returns: v.any(),
   handler: async (ctx, args): Promise<unknown> => {
@@ -17,8 +17,7 @@ export const fetch = action({
     if (cached !== null) return cached.value;
 
     const value = await ctx.runAction(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      fn as FunctionHandle<"action", any, any>,
+      fn as FunctionHandle<"action">,
       args.args
     );
     await ctx.runMutation(api.cache.put, { ...rest, value });
@@ -39,8 +38,8 @@ export const remove = mutation({
       .unique();
 
     if (!match) return null;
-    if (match.expirationId) {
-      await ctx.db.delete(match.expirationId);
+    if (match.metadataId) {
+      await ctx.db.delete(match.metadataId);
     }
     await ctx.db.delete(match._id);
   },
@@ -65,8 +64,8 @@ export const removeAll = mutation({
         : ctx.db.query("values");
     const matches = await query.order("desc").take(100);
     for (const match of matches) {
-      if (match.expirationId) {
-        await ctx.db.delete(match.expirationId);
+      if (match.metadataId) {
+        await ctx.db.delete(match.metadataId);
       }
       await ctx.db.delete(match._id);
     }
