@@ -49,7 +49,7 @@ export async function del(ctx: MutationCtx, value: Doc<"values">) {
 
 /**
  * Put a value into the cache. Updates the value if it already exists.
- * If ttl is non-null, it will set the ttl to that number of milliseconds from now.
+ * If ttl is non-null, it will set the expiration to that number of milliseconds from now.
  * If ttl is null, it will never expire.
  */
 export const put = mutation({
