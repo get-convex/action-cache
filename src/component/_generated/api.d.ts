@@ -37,14 +37,14 @@ export type Mounts = {
     get: FunctionReference<
       "mutation",
       "public",
-      { args: any; expiration: number | null; name: string },
+      { args: any; name: string },
       any | null
     >;
     put: FunctionReference<
       "mutation",
       "public",
-      { args: any; expiration: number | null; name: string; value: any },
-      any
+      { args: any; name: string; ttl: number | null; value: any },
+      null
     >;
   };
   crons: {
@@ -59,7 +59,7 @@ export type Mounts = {
     fetch: FunctionReference<
       "action",
       "public",
-      { args: any; expiration: number | null; fn: string; name: string },
+      { args: any; fn: string; name: string; ttl: number | null },
       any
     >;
     remove: FunctionReference<

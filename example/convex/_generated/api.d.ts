@@ -47,14 +47,14 @@ export declare const components: {
       get: FunctionReference<
         "mutation",
         "internal",
-        { args: any; expiration: number | null; name: string },
+        { args: any; name: string },
         any | null
       >;
       put: FunctionReference<
         "mutation",
         "internal",
-        { args: any; expiration: number | null; name: string; value: any },
-        any
+        { args: any; name: string; ttl: number | null; value: any },
+        null
       >;
     };
     crons: {
@@ -69,7 +69,7 @@ export declare const components: {
       fetch: FunctionReference<
         "action",
         "internal",
-        { args: any; expiration: number | null; fn: string; name: string },
+        { args: any; fn: string; name: string; ttl: number | null },
         any
       >;
       remove: FunctionReference<
