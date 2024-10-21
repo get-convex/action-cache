@@ -28,8 +28,8 @@ export interface ActionCacheConfig<
   /**
    * The maximum number of milliseconds this cache entry is valid for.
    * If not provided, the cache entry will be stored indefinitely.
-   * This default can be overriden on a per-entry basis.
-   * Note: It may be evicted from the cache before this time.
+   * This default can be overriden on a per-entry basis by calling `fetch`
+   * with the `ttl` option.
    */
   ttl?: number;
 }

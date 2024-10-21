@@ -6,7 +6,7 @@
 
 <!-- START: Include on https://convex.dev/components -->
 
-Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional expiration. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (defaults to function name) and the arguments to the action that generates the cache values.
+Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional TTL. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (defaults to function name) and the arguments to the action that generates the cache values.
 
 ```ts
 import { Client } from "@convex-dev/cache";
@@ -67,9 +67,9 @@ export default app;
 Finally, create a new `ActionCache` with optional name and expiration within your Convex project, and point it to the installed component.
 
 - The `name` field can be used for identifying the function or version being used to create the values in the cache and can also be used for grouping entries to remove.
-- The `expiration` field determines how long the cache entries are valid, in milliseconds.
-  - If no `expiration` is provided, the cache entries are kept indefinitely.
-  - If an `expiration` is provided, expired cache entries are deleted when they are retrieved and in a daily cron job.
+- The `ttl` (Time-To-Live) field determines how long the cache entries are valid, in milliseconds.
+  - If no `ttl` is provided, the cache entries are kept indefinitely.
+  - If an `ttl` is provided, expired cache entries are deleted when they are retrieved and in a daily cron job.
 
 ```ts
 import { ActionCache } from "@convex-dev/cache";
@@ -78,7 +78,7 @@ import { components } from "./_generated/api";
 const cache = new ActionCache(components.actionCache, {
   action: internal.example.myExpensiveAction,
   name: "myExpensiveActionV1",
-  expiration: 1000 * 60 * 60 * 24 * 7, // 7 days
+  ttl: 1000 * 60 * 60 * 24 * 7, // 7 days
 });
 ```
 
