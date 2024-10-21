@@ -26,10 +26,12 @@ export interface ActionCacheConfig<
    */
   name?: string;
   /**
-   * Number of milliseconds to expire this cache entry after, debounced by a day.
+   * The maximum number of milliseconds this cache entry is valid for.
    * If not provided, the cache entry will be stored indefinitely.
+   * This default can be overriden on a per-entry basis by calling `fetch`
+   * with the `ttl` option.
    */
-  expiration?: number;
+  ttl?: number;
 }
 
 export class ActionCache<
@@ -41,7 +43,7 @@ export class ActionCache<
    */
   public name: string;
   /**
-   *
+   * A read-through cache wrapping an action. It calls the action on a miss.
    * @param component - The registered action cache from `components`.
    * @param config - The configuration for this action cache.
    */
@@ -56,16 +58,21 @@ export class ActionCache<
    * if the value is expired or does not exist.
    * @param ctx - The Convex action context.
    * @param args - The arguments to the action the generates the cache values.
+   * @param opts - Optionally override the default cache TTL for this entry.
    * @returns - The cache value
    */
-  async fetch(ctx: RunActionCtx, args: FunctionArgs<Action>) {
+  async fetch(
+    ctx: RunActionCtx,
+    args: FunctionArgs<Action>,
+    opts?: { ttl: number }
+  ) {
     const fn = await createFunctionHandle(this.config.action);
 
     return ctx.runAction(this.component.public.fetch, {
       fn,
       name: this.name,
       args,
-      expiration: this.config.expiration || null,
+      ttl: opts?.ttl ?? this.config.ttl ?? null,
     }) as FunctionReturnType<Action>;
   }
 
@@ -96,10 +103,12 @@ export class ActionCache<
   /**
    * Clear all values in the cache.
    * @param ctx - The Convex mutation context.
+   * @param before - (optional) Remove all values created before this timestamp.
+   * Defaults to now (all values).
    * @returns
    */
-  async removeAll(ctx: RunMutationCtx) {
-    return ctx.runMutation(this.component.public.removeAll, {});
+  async removeAll(ctx: RunMutationCtx, before?: number) {
+    return ctx.runMutation(this.component.public.removeAll, { before });
   }
 }
 
