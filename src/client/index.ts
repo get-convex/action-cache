@@ -27,9 +27,11 @@ export interface ActionCacheConfig<
   name?: string;
   /**
    * The maximum number of milliseconds this cache entry is valid for.
-   * If not provided, the cache entry will be stored indefinitely.
+   * If not provided, the cache entry will not automatically expire.
    * This default can be overriden on a per-entry basis by calling `fetch`
    * with the `ttl` option.
+   * If the TTL differs between when the cache entry was created and when it is
+   * fetched, the shorter of the TTLs will be used.
    */
   ttl?: number;
 }
@@ -68,7 +70,7 @@ export class ActionCache<
   ) {
     const fn = await createFunctionHandle(this.config.action);
 
-    return ctx.runAction(this.component.public.fetch, {
+    return ctx.runAction(this.component.lib.fetch, {
       fn,
       name: this.name,
       args,
@@ -83,7 +85,7 @@ export class ActionCache<
    * @returns
    */
   async remove(ctx: RunMutationCtx, args: FunctionArgs<Action>) {
-    return ctx.runMutation(this.component.public.remove, {
+    return ctx.runMutation(this.component.lib.remove, {
       name: this.name,
       args,
     });
@@ -95,7 +97,7 @@ export class ActionCache<
    * @returns
    */
   async removeAllForName(ctx: RunMutationCtx) {
-    return ctx.runMutation(this.component.public.removeAll, {
+    return ctx.runMutation(this.component.lib.removeAll, {
       name: this.name,
     });
   }
@@ -108,7 +110,7 @@ export class ActionCache<
    * @returns
    */
   async removeAll(ctx: RunMutationCtx, before?: number) {
-    return ctx.runMutation(this.component.public.removeAll, { before });
+    return ctx.runMutation(this.component.lib.removeAll, { before });
   }
 }
 

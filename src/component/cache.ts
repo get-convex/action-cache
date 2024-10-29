@@ -9,11 +9,14 @@ export const DAY = 24 * HOUR;
 
 /**
  * Get a value from the cache, returning null if it doesn't exist or has expired.
+ * It will consider the value expired if the original TTL has passed or if the
+ * value is older than the new TTL.
  */
 export const get = mutation({
   args: {
     name: v.string(),
     args: v.any(),
+    ttl: v.union(v.float64(), v.null()),
   },
   returns: v.union(v.any(), v.null()),
   handler: async (ctx, args) => {
@@ -26,6 +29,12 @@ export const get = mutation({
       await del(ctx, match);
       return null;
     }
+    // Invalidate values explicitly with the (possibly new) TTL
+    if (args.ttl !== null && match._creationTime + args.ttl < Date.now()) {
+      await del(ctx, match);
+      return null;
+    }
+
     return match;
   },
 });

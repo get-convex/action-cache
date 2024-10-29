@@ -61,7 +61,7 @@ export const removeAll = mutation({
     if (matches.length === 100) {
       await ctx.scheduler.runAfter(
         0,
-        api.public.removeAll,
+        api.lib.removeAll,
         name ? { name } : { before: matches[99]._creationTime }
       );
     }

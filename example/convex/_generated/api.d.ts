@@ -47,7 +47,7 @@ export declare const components: {
       get: FunctionReference<
         "mutation",
         "internal",
-        { args: any; name: string },
+        { args: any; name: string; ttl: number | null },
         any | null
       >;
       put: FunctionReference<
@@ -65,7 +65,7 @@ export declare const components: {
         null
       >;
     };
-    public: {
+    lib: {
       fetch: FunctionReference<
         "action",
         "internal",

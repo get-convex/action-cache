@@ -12,7 +12,7 @@
 
 import type * as cache from "../cache.js";
 import type * as crons from "../crons.js";
-import type * as public from "../public.js";
+import type * as lib from "../lib.js";
 
 import type {
   ApiFromModules,
@@ -30,14 +30,14 @@ import type {
 declare const fullApi: ApiFromModules<{
   cache: typeof cache;
   crons: typeof crons;
-  public: typeof public;
+  lib: typeof lib;
 }>;
 export type Mounts = {
   cache: {
     get: FunctionReference<
       "mutation",
       "public",
-      { args: any; name: string },
+      { args: any; name: string; ttl: number | null },
       any | null
     >;
     put: FunctionReference<
@@ -55,7 +55,7 @@ export type Mounts = {
       null
     >;
   };
-  public: {
+  lib: {
     fetch: FunctionReference<
       "action",
       "public",
