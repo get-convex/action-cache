@@ -10,7 +10,8 @@ Sometimes your app needs to fetch information from a third-party API that is slo
 
 ```ts
 import { Client } from "@convex-dev/cache";
-import { action, components } from "./_generated/server";
+import { action } from "./_generated/server";
+import { components } from "./_generated/api";
 import { ActionCache } from "@convex-dev/action-cache";
 
 const cache = new ActionCache(components.actionCache, {
