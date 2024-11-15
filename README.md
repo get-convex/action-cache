@@ -9,7 +9,6 @@
 Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional TTL. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (defaults to function name) and the arguments to the action that generates the cache values.
 
 ```ts
-import { Client } from "@convex-dev/cache";
 import { action } from "./_generated/server";
 import { components } from "./_generated/api";
 import { ActionCache } from "@convex-dev/action-cache";
@@ -73,7 +72,7 @@ Finally, create a new `ActionCache` with optional name and expiration within you
   - If an `ttl` is provided, expired cache entries are deleted when they are retrieved and in a daily cron job.
 
 ```ts
-import { ActionCache } from "@convex-dev/cache";
+import { ActionCache } from "@convex-dev/action-cache";
 import { components } from "./_generated/api";
 
 const cache = new ActionCache(components.actionCache, {
