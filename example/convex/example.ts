@@ -140,7 +140,7 @@ export const vectorSearch = action({
     }
     const rows: SearchResult[] = await ctx.runQuery(
       internal.example.fetchResults,
-      { results }
+      { results },
     );
     return rows;
   },
@@ -178,7 +178,6 @@ export const clear = mutation({
   },
 });
 
-
 export const queryMany = action({
   args: {
     text: v.string(),
@@ -187,11 +186,13 @@ export const queryMany = action({
   handler: async (ctx, args) => {
     const embeddings = await Promise.all(
       Array.from({ length: args.count }, () =>
-        embeddingsCache.fetch(ctx, { text: args.text })
-      )
+        embeddingsCache.fetch(ctx, { text: args.text }),
+      ),
     );
     if (embeddings.length !== args.count) {
-      throw new Error(`Expected ${args.count} embeddings, got ${embeddings.length}`);
-    }        
+      throw new Error(
+        `Expected ${args.count} embeddings, got ${embeddings.length}`,
+      );
+    }
   },
 });
