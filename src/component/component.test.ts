@@ -9,19 +9,19 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
   "Get and put work",
   async ({ key, value }) => {
     const t = convexTest(schema, modules);
-    const empty = await t.query(api.cache.get, {
+    const empty = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: null,
     });
     expect(empty.kind).toBe("miss");
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value,
       ttl: 1000,
     });
-    const result = await t.query(api.cache.get, {
+    const result = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: null,
@@ -35,7 +35,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
   "Put with ttl works",
   async ({ key, value }) => {
     const t = convexTest(schema, modules);
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value,
@@ -46,7 +46,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       expect(metadata).toHaveLength(1);
       expect(metadata[0].expiresAt).toBeLessThanOrEqual(Date.now() + 1000);
     });
-    const result = await t.query(api.cache.get, {
+    const result = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: 1000,
@@ -60,7 +60,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
   "Put with new value updates ttl",
   async ({ key, value }) => {
     const t = convexTest(schema, modules);
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value,
@@ -69,7 +69,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     const newValue = [...value, 1];
 
     // add a ttl
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value: newValue,
@@ -80,7 +80,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       expect(metadata).toHaveLength(1);
       expect(metadata[0].expiresAt).toBeLessThanOrEqual(Date.now() + 1000);
     });
-    const result = await t.query(api.cache.get, {
+    const result = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: 1000,
@@ -89,7 +89,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     expect(result.value).toEqual(newValue);
 
     // now update the ttl
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value,
@@ -100,7 +100,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       expect(metadata).toHaveLength(1);
       expect(metadata[0].expiresAt).toBeLessThanOrEqual(Date.now() + 10000);
     });
-    const result2 = await t.query(api.cache.get, {
+    const result2 = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: 10000,
@@ -109,7 +109,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     expect(result2.value).toEqual(value);
 
     // remove the ttl again
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value: newValue,
@@ -119,7 +119,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       const metadata = await ctx.db.query("metadata").collect();
       expect(metadata).toHaveLength(0);
     });
-    const result3 = await t.query(api.cache.get, {
+    const result3 = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: null,
@@ -133,13 +133,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
   "Getting with a ttl on cache hit does not update previous indefinite ttl",
   async ({ key, value }) => {
     const t = convexTest(schema, modules);
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value,
       ttl: null,
     });
-    await t.query(api.cache.get, {
+    await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: 1000,
@@ -155,13 +155,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
   "Getting an expired value returns null",
   async ({ key, value }) => {
     const t = convexTest(schema, modules);
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value,
       ttl: 0,
     });
-    const result = await t.query(api.cache.get, {
+    const result = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: null,
@@ -174,13 +174,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
   "Getting a value that had no ttl is expired if it doesn't satisfy the new ttl",
   async ({ key, value }) => {
     const t = convexTest(schema, modules);
-    await t.mutation(api.cache.put, {
+    await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
       value,
       ttl: null,
     });
-    const result = await t.query(api.cache.get, {
+    const result = await t.query(api.lib.get, {
       name: "test",
       args: { key },
       ttl: -1,

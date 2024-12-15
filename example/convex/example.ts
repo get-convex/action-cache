@@ -177,3 +177,21 @@ export const clear = mutation({
     await embeddingsCache.removeAll(ctx);
   },
 });
+
+
+export const queryMany = action({
+  args: {
+    text: v.string(),
+    count: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const embeddings = await Promise.all(
+      Array.from({ length: args.count }, () =>
+        embeddingsCache.fetch(ctx, { text: args.text })
+      )
+    );
+    if (embeddings.length !== args.count) {
+      throw new Error(`Expected ${args.count} embeddings, got ${embeddings.length}`);
+    }        
+  },
+});

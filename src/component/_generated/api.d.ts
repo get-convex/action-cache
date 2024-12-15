@@ -33,7 +33,15 @@ declare const fullApi: ApiFromModules<{
   lib: typeof lib;
 }>;
 export type Mounts = {
-  cache: {
+  crons: {
+    purge: FunctionReference<
+      "mutation",
+      "public",
+      { expiresAt?: number },
+      null
+    >;
+  };
+  lib: {
     get: FunctionReference<
       "query",
       "public",
@@ -52,22 +60,6 @@ export type Mounts = {
         value: any;
       },
       null
-    >;
-  };
-  crons: {
-    purge: FunctionReference<
-      "mutation",
-      "public",
-      { expiresAt?: number },
-      null
-    >;
-  };
-  lib: {
-    fetch: FunctionReference<
-      "action",
-      "public",
-      { args: any; fn: string; name: string; ttl: number | null },
-      any
     >;
     remove: FunctionReference<
       "mutation",
