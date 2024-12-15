@@ -1,8 +1,9 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, QueryCtx } from "./_generated/server";
 import { api } from "./_generated/api";
 import { del } from "./cache";
 import { lookup } from "./cache";
+import { Doc } from "./_generated/dataModel";
 
 /**
  * Get a value from the cache, returning null if it doesn't exist or has expired.
@@ -22,7 +23,7 @@ export const get = query({
     }),
     v.object({
       kind: v.literal("miss"),
-      expiredEntry: v.optional(v.object({    
+      expiredEntry: v.optional(v.object({
         _creationTime: v.number(),
       })),
     })
@@ -63,22 +64,18 @@ export const put = mutation({
     args: v.any(),
     value: v.any(),
     ttl: v.union(v.float64(), v.null()),
-    expiredEntry: v.optional(v.object({      
+    expiredEntry: v.optional(v.object({
       _creationTime: v.number(),
     })),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const match = await lookup(ctx, args);    
+    const match = await lookup(ctx, args);
 
-    // If there's an existing entry, drop our update if we can prove that it 
-    // comes after our original `get()`.
-    if (match) {      
-      if (!args.expiredEntry || args.expiredEntry._creationTime < match._creationTime) {
-        return;
-      }      
+    // Try to reuse an existing entry if present.
+    if (match && canReuseCacheEntry(args.expiredEntry, match, args.ttl)) {
+      return;
     }
-
     // Otherwise, delete the existing entry and insert a new one.
     if (match) {
       await del(ctx, match);
@@ -96,10 +93,30 @@ export const put = mutation({
       });
       await ctx.db.patch(valueId, {
         metadataId,
-      });        
+      });
     }
   }
 })
+
+function canReuseCacheEntry(
+  expiredEntry: { _creationTime: number } | undefined, 
+  existingEntry: Doc<"values">,
+  ttl: number | null,
+) {
+  // If we're setting a TTL and the previous entry doesn't have one, we can't reuse it.
+  if (!existingEntry.metadataId && ttl !== null) {
+    return false;
+  }
+  // Similarly, if we don't have a TTL and the previous entry does, we can't reuse it.
+  if (existingEntry.metadataId && ttl === null) {
+    return false;
+  }
+  // Don't reuse the entry we previously observed as expired.
+  if (expiredEntry && existingEntry._creationTime <= expiredEntry._creationTime) {
+    return false;
+  }
+  return true;
+}
 
 export const remove = mutation({
   args: {
@@ -111,7 +128,7 @@ export const remove = mutation({
     const match = await lookup(ctx, args);
     if (match) {
       await del(ctx, match);
-    }    
+    }
   },
 });
 
@@ -126,10 +143,10 @@ export const removeAll = mutation({
     const query = name
       ? ctx.db.query("values").withIndex("key", (q) => q.eq("name", name))
       : ctx.db
-          .query("values")
-          .withIndex("by_creation_time", (q) =>
-            q.lte("_creationTime", before ?? Date.now())
-          );
+        .query("values")
+        .withIndex("by_creation_time", (q) =>
+          q.lte("_creationTime", before ?? Date.now())
+        );
     const matches = await query.order("desc").take(100);
     for (const match of matches) {
       await del(ctx, match);

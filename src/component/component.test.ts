@@ -86,33 +86,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       ttl: 1000,
     });
     expect(result.kind).toBe("hit");
-    expect(result.value).toEqual(newValue);
-
-    // now update the ttl
-    await t.mutation(api.lib.put, {
-      name: "test",
-      args: { key },
-      value,
-      ttl: 10000,
-    });
-    await t.run(async (ctx) => {
-      const metadata = await ctx.db.query("metadata").collect();
-      expect(metadata).toHaveLength(1);
-      expect(metadata[0].expiresAt).toBeLessThanOrEqual(Date.now() + 10000);
-    });
-    const result2 = await t.query(api.lib.get, {
-      name: "test",
-      args: { key },
-      ttl: 10000,
-    });
-    expect(result2.kind).toBe("hit");
-    expect(result2.value).toEqual(value);
+    expect(result.value).toEqual(newValue);    
 
     // remove the ttl again
     await t.mutation(api.lib.put, {
       name: "test",
       args: { key },
-      value: newValue,
+      value,
       ttl: null,
     });
     await t.run(async (ctx) => {
@@ -125,7 +105,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       ttl: null,
     });
     expect(result3.kind).toBe("hit");
-    expect(result3.value).toEqual(newValue);
+    expect(result3.value).toEqual(value);
   }
 );
 
