@@ -45,15 +45,22 @@ export declare const components: {
   actionCache: {
     cache: {
       get: FunctionReference<
-        "mutation",
+        "query",
         "internal",
         { args: any; name: string; ttl: number | null },
-        any | null
+        | { kind: "hit"; value: any }
+        | { expiredEntry?: { _creationTime: number }; kind: "miss" }
       >;
       put: FunctionReference<
         "mutation",
         "internal",
-        { args: any; name: string; ttl: number | null; value: any },
+        {
+          args: any;
+          expiredEntry?: { _creationTime: number };
+          name: string;
+          ttl: number | null;
+          value: any;
+        },
         null
       >;
     };

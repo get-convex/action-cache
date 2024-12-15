@@ -9,25 +9,25 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
   "Get and put work",
   async ({ key, value }) => {
     const t = convexTest(schema, modules);
-    const empty = await t.mutation(api.cache.get, {
+    const empty = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: null,
     });
-    expect(empty).toBeNull();
+    expect(empty.kind).toBe("miss");
     await t.mutation(api.cache.put, {
       name: "test",
       args: { key },
       value,
       ttl: 1000,
     });
-    const result = await t.mutation(api.cache.get, {
+    const result = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: null,
     });
-    expect(result).not.toBeNull();
-    expect(result?.value).toEqual(value);
+    expect(result.kind).toBe("hit");
+    expect(result.value).toEqual(value);
   }
 );
 
@@ -46,13 +46,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       expect(metadata).toHaveLength(1);
       expect(metadata[0].expiresAt).toBeLessThanOrEqual(Date.now() + 1000);
     });
-    const result = await t.mutation(api.cache.get, {
+    const result = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: 1000,
     });
-    expect(result).not.toBeNull();
-    expect(result?.value).toEqual(value);
+    expect(result.kind).toBe("hit");
+    expect(result.value).toEqual(value);
   }
 );
 
@@ -80,13 +80,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       expect(metadata).toHaveLength(1);
       expect(metadata[0].expiresAt).toBeLessThanOrEqual(Date.now() + 1000);
     });
-    const result = await t.mutation(api.cache.get, {
+    const result = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: 1000,
     });
-    expect(result).not.toBeNull();
-    expect(result?.value).toEqual(newValue);
+    expect(result.kind).toBe("hit");
+    expect(result.value).toEqual(newValue);
 
     // now update the ttl
     await t.mutation(api.cache.put, {
@@ -100,13 +100,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       expect(metadata).toHaveLength(1);
       expect(metadata[0].expiresAt).toBeLessThanOrEqual(Date.now() + 10000);
     });
-    const result2 = await t.mutation(api.cache.get, {
+    const result2 = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: 10000,
     });
-    expect(result2).not.toBeNull();
-    expect(result2?.value).toEqual(value);
+    expect(result2.kind).toBe("hit");
+    expect(result2.value).toEqual(value);
 
     // remove the ttl again
     await t.mutation(api.cache.put, {
@@ -119,13 +119,13 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       const metadata = await ctx.db.query("metadata").collect();
       expect(metadata).toHaveLength(0);
     });
-    const result3 = await t.mutation(api.cache.get, {
+    const result3 = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: null,
     });
-    expect(result3).not.toBeNull();
-    expect(result3?.value).toEqual(newValue);
+    expect(result3.kind).toBe("hit");
+    expect(result3.value).toEqual(newValue);
   }
 );
 
@@ -139,7 +139,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       value,
       ttl: null,
     });
-    await t.mutation(api.cache.get, {
+    await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: 1000,
@@ -161,12 +161,12 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       value,
       ttl: 0,
     });
-    const result = await t.mutation(api.cache.get, {
+    const result = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: null,
     });
-    expect(result).toBeNull();
+    expect(result.kind).toBe("miss");
   }
 );
 
@@ -180,15 +180,11 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       value,
       ttl: null,
     });
-    const result = await t.mutation(api.cache.get, {
+    const result = await t.query(api.cache.get, {
       name: "test",
       args: { key },
       ttl: -1,
     });
-    expect(result).toBeNull();
-    await t.run(async (ctx) => {
-      const values = await ctx.db.query("values").collect();
-      expect(values).toHaveLength(0);
-    });
+    expect(result.kind).toBe("miss");    
   }
 );

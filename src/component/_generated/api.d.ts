@@ -35,15 +35,22 @@ declare const fullApi: ApiFromModules<{
 export type Mounts = {
   cache: {
     get: FunctionReference<
-      "mutation",
+      "query",
       "public",
       { args: any; name: string; ttl: number | null },
-      any | null
+      | { kind: "hit"; value: any }
+      | { expiredEntry?: { _creationTime: number }; kind: "miss" }
     >;
     put: FunctionReference<
       "mutation",
       "public",
-      { args: any; name: string; ttl: number | null; value: any },
+      {
+        args: any;
+        expiredEntry?: { _creationTime: number };
+        name: string;
+        ttl: number | null;
+        value: any;
+      },
       null
     >;
   };

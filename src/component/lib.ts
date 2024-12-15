@@ -2,7 +2,8 @@ import { v } from "convex/values";
 import { action, mutation } from "./_generated/server";
 import { api } from "./_generated/api";
 import { FunctionHandle } from "convex/server";
-import { del, lookup } from "./cache";
+import { del } from "./cache";
+import { lookup } from "./cache";
 
 export const fetch = action({
   args: {
@@ -14,14 +15,15 @@ export const fetch = action({
   returns: v.any(),
   handler: async (ctx, args): Promise<unknown> => {
     const { fn, ...rest } = args;
-    const cached = await ctx.runMutation(api.cache.get, rest);
-    if (cached !== null) return cached.value;
-
+    const result = await ctx.runQuery(api.cache.get, rest);
+    if (result.kind === "hit") {
+      return result.value;
+    }
     const value = await ctx.runAction(
       fn as FunctionHandle<"action">,
       args.args
     );
-    await ctx.runMutation(api.cache.put, { ...rest, value });
+    await ctx.runMutation(api.cache.put, { ...rest, value, expiredEntry: result.expiredEntry });
     return value;
   },
 });
@@ -34,8 +36,9 @@ export const remove = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const match = await lookup(ctx, args);
-    if (!match) return null;
-    await del(ctx, match);
+    if (match) {
+      await del(ctx, match);
+    }    
   },
 });
 
