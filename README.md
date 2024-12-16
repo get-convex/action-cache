@@ -2,8 +2,6 @@
 
 [![npm version](https://badge.fury.io/js/@convex-dev%2Faction-cache.svg)](https://badge.fury.io/js/@convex-dev%2Faction-cache)
 
-**Note: Convex Components are currently in beta.**
-
 <!-- START: Include on https://convex.dev/components -->
 
 Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional TTL. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (defaults to function name) and the arguments to the action that generates the cache values.
