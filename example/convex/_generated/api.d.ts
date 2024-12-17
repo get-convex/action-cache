@@ -43,20 +43,6 @@ export declare const internal: FilterApi<
 
 export declare const components: {
   actionCache: {
-    cache: {
-      get: FunctionReference<
-        "mutation",
-        "internal",
-        { args: any; name: string; ttl: number | null },
-        any | null
-      >;
-      put: FunctionReference<
-        "mutation",
-        "internal",
-        { args: any; name: string; ttl: number | null; value: any },
-        null
-      >;
-    };
     crons: {
       purge: FunctionReference<
         "mutation",
@@ -66,11 +52,23 @@ export declare const components: {
       >;
     };
     lib: {
-      fetch: FunctionReference<
-        "action",
+      get: FunctionReference<
+        "query",
         "internal",
-        { args: any; fn: string; name: string; ttl: number | null },
-        any
+        { args: any; name: string; ttl: number | null },
+        { kind: "hit"; value: any } | { expiredEntry?: string; kind: "miss" }
+      >;
+      put: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          args: any;
+          expiredEntry?: string;
+          name: string;
+          ttl: number | null;
+          value: any;
+        },
+        null
       >;
       remove: FunctionReference<
         "mutation",

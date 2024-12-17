@@ -8,6 +8,7 @@ import {
   GenericActionCtx,
   GenericDataModel,
   GenericMutationCtx,
+  GenericQueryCtx,
   getFunctionName,
 } from "convex/server";
 import { GenericId } from "convex/values";
@@ -51,7 +52,7 @@ export class ActionCache<
    */
   constructor(
     public component: UseApi<typeof api>,
-    private config: ActionCacheConfig<Action>
+    private config: ActionCacheConfig<Action>,
   ) {
     this.name = this.config.name || getFunctionName(this.config.action);
   }
@@ -64,18 +65,29 @@ export class ActionCache<
    * @returns - The cache value
    */
   async fetch(
-    ctx: RunActionCtx,
+    ctx: RunQueryCtx & RunMutationCtx & RunActionCtx,
     args: FunctionArgs<Action>,
-    opts?: { ttl: number }
+    opts?: { ttl: number },
   ) {
     const fn = await createFunctionHandle(this.config.action);
-
-    return ctx.runAction(this.component.lib.fetch, {
-      fn,
+    const ttl = opts?.ttl ?? this.config.ttl ?? null;
+    const result = await ctx.runQuery(this.component.lib.get, {
       name: this.name,
       args,
-      ttl: opts?.ttl ?? this.config.ttl ?? null,
-    }) as FunctionReturnType<Action>;
+      ttl,
+    });
+    if (result.kind === "hit") {
+      return result.value;
+    }
+    const value = await ctx.runAction(fn, args);
+    await ctx.runMutation(this.component.lib.put, {
+      name: this.name,
+      args,
+      value,
+      expiredEntry: result.expiredEntry,
+      ttl,
+    });
+    return value as FunctionReturnType<Action>;
   }
 
   /**
@@ -121,6 +133,9 @@ type RunMutationCtx = {
 };
 type RunActionCtx = {
   runAction: GenericActionCtx<GenericDataModel>["runAction"];
+};
+type RunQueryCtx = {
+  runQuery: GenericQueryCtx<GenericDataModel>["runQuery"];
 };
 
 export type OpaqueIds<T> =
