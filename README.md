@@ -149,7 +149,7 @@ export const vectorSearch = action({
     });
     const rows: SearchResult[] = await ctx.runQuery(
       internal.example.fetchResults,
-      { results }
+      { results },
     );
     return rows;
   },

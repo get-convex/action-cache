@@ -46,15 +46,14 @@ export type Mounts = {
       "query",
       "public",
       { args: any; name: string; ttl: number | null },
-      | { kind: "hit"; value: any }
-      | { expiredEntry?: { _creationTime: number }; kind: "miss" }
+      { kind: "hit"; value: any } | { expiredEntry?: string; kind: "miss" }
     >;
     put: FunctionReference<
       "mutation",
       "public",
       {
         args: any;
-        expiredEntry?: { _creationTime: number };
+        expiredEntry?: string;
         name: string;
         ttl: number | null;
         value: any;

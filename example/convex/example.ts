@@ -166,6 +166,35 @@ export const test = action({
   },
 });
 
+export const testConcurrently = action({
+  args: {
+    text: v.string(),
+    count: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const start = Date.now();
+    const promises = [];
+    for (let i = 0; i < args.count; i++) {
+      const promise = async () => {
+        const start = Date.now();
+        const embedding = await embeddingsCache.fetch(ctx, { text: args.text });
+        if (embedding.length !== 1536) {
+          throw new Error(`Expected 1536 dimensions, got ${embedding.length}`);
+        }
+        const end = Date.now();
+        return end - start;
+      };
+      promises.push(promise());
+    }
+    const individualDurations = await Promise.all(promises);
+    const totalDuration = Date.now() - start;
+    console.log(`Loaded ${args.count} embeddings in ${totalDuration}ms`);
+    for (const individualDuration of individualDurations) {
+      console.log(`  Fetch: ${individualDuration}ms`);
+    }
+  },
+});
+
 export const clear = mutation({
   args: {},
   handler: async (ctx) => {

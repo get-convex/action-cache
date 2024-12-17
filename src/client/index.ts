@@ -52,7 +52,7 @@ export class ActionCache<
    */
   constructor(
     public component: UseApi<typeof api>,
-    private config: ActionCacheConfig<Action>
+    private config: ActionCacheConfig<Action>,
   ) {
     this.name = this.config.name || getFunctionName(this.config.action);
   }
@@ -67,7 +67,7 @@ export class ActionCache<
   async fetch(
     ctx: RunQueryCtx & RunMutationCtx & RunActionCtx,
     args: FunctionArgs<Action>,
-    opts?: { ttl: number }
+    opts?: { ttl: number },
   ) {
     const fn = await createFunctionHandle(this.config.action);
     const ttl = opts?.ttl ?? this.config.ttl ?? null;
@@ -87,7 +87,7 @@ export class ActionCache<
       expiredEntry: result.expiredEntry,
       ttl,
     });
-    return value as FunctionReturnType<Action>;    
+    return value as FunctionReturnType<Action>;
   }
 
   /**

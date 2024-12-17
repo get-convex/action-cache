@@ -56,15 +56,14 @@ export declare const components: {
         "query",
         "internal",
         { args: any; name: string; ttl: number | null },
-        | { kind: "hit"; value: any }
-        | { expiredEntry?: { _creationTime: number }; kind: "miss" }
+        { kind: "hit"; value: any } | { expiredEntry?: string; kind: "miss" }
       >;
       put: FunctionReference<
         "mutation",
         "internal",
         {
           args: any;
-          expiredEntry?: { _creationTime: number };
+          expiredEntry?: string;
           name: string;
           ttl: number | null;
           value: any;
