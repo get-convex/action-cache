@@ -52,7 +52,7 @@ export class ActionCache<
    */
   constructor(
     public component: UseApi<typeof api>,
-    private config: ActionCacheConfig<Action>,
+    private config: ActionCacheConfig<Action>
   ) {
     this.name = this.config.name || getFunctionName(this.config.action);
   }
@@ -67,7 +67,7 @@ export class ActionCache<
   async fetch(
     ctx: RunQueryCtx & RunMutationCtx & RunActionCtx,
     args: FunctionArgs<Action>,
-    opts?: { ttl: number },
+    opts?: { ttl: number }
   ) {
     const fn = await createFunctionHandle(this.config.action);
     const ttl = opts?.ttl ?? this.config.ttl ?? null;
@@ -106,11 +106,12 @@ export class ActionCache<
   /**
    * Clear the cache of all values associated with the name of this `ActionCache`.
    * @param ctx - The Convex mutation context.
-   * @returns
+   * @param opts - Optionally override the default batch size.
    */
-  async removeAllForName(ctx: RunMutationCtx) {
+  async removeAllForName(ctx: RunMutationCtx, opts?: { batchSize?: number }) {
     return ctx.runMutation(this.component.lib.removeAll, {
       name: this.name,
+      ...opts,
     });
   }
 
