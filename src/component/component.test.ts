@@ -1,6 +1,6 @@
 import { convexTest } from "convex-test";
 import schema from "./schema";
-import { expect } from "vitest";
+import { expect, vi } from "vitest";
 import { api } from "./_generated/api";
 import { modules } from "./setup.test";
 import { test as fcTest, fc } from "@fast-check/vitest";
@@ -28,7 +28,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     });
     expect(result.kind).toBe("hit");
     expect(result.value).toEqual(value);
-  },
+  }
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -53,7 +53,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     });
     expect(result.kind).toBe("hit");
     expect(result.value).toEqual(value);
-  },
+  }
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -106,7 +106,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     });
     expect(result3.kind).toBe("hit");
     expect(result3.value).toEqual(value);
-  },
+  }
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -128,7 +128,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       const metadata = await ctx.db.query("metadata").collect();
       expect(metadata).toHaveLength(0);
     });
-  },
+  }
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -147,7 +147,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       ttl: null,
     });
     expect(result.kind).toBe("miss");
-  },
+  }
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -166,5 +166,40 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       ttl: -1,
     });
     expect(result.kind).toBe("miss");
-  },
+  }
 );
+
+fcTest.prop({
+  key: fc.array(fc.string()),
+  value: fc.array(fc.float()),
+})("RemoveAll works", async ({ key, value }) => {
+  const key2 = [...key, "2"];
+  const value2 = [...value, 2];
+  vi.useFakeTimers();
+  const t = convexTest(schema, modules);
+  try {
+    await t.mutation(api.lib.put, {
+      name: "test",
+      args: { key },
+      value,
+      ttl: null,
+    });
+    await t.mutation(api.lib.put, {
+      name: "test",
+      args: { key: key2 },
+      value: value2,
+      ttl: null,
+    });
+    await t.mutation(api.lib.removeAll, {
+      name: "test",
+      batchSize: 1,
+    });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    await t.run(async (ctx) => {
+      const metadata = await ctx.db.query("metadata").collect();
+      expect(metadata).toHaveLength(0);
+    });
+  } finally {
+    vi.useRealTimers();
+  }
+});
