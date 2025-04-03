@@ -38,6 +38,7 @@ npm publish --dry-run
 # sanity check files being included
 npm publish
 git push --tags
+git push
 ```
 
 #### Alpha release
