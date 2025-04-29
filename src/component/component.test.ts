@@ -194,6 +194,10 @@ fcTest.prop({
       name: "test",
       batchSize: 1,
     });
+    await t.run(async (ctx) => {
+      const metadata = await ctx.db.query("metadata").collect();
+      expect(metadata).toHaveLength(1);
+    });
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     await t.run(async (ctx) => {
       const metadata = await ctx.db.query("metadata").collect();
