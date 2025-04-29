@@ -6,7 +6,10 @@ const MINUTE = 60 * SECOND;
 const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
-export async function lookup(ctx: QueryCtx, args: { name: string; args: any }) {
+export async function lookup(
+  ctx: QueryCtx,
+  args: { name: string; args: unknown }
+) {
   return ctx.db
     .query("values")
     .withIndex("key", (q) => q.eq("name", args.name).eq("args", args.args))
