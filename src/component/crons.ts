@@ -16,17 +16,17 @@ export const purge = mutation({
       .query("metadata")
       .withIndex("expiresAt", (q) => q.lte("expiresAt", expiresAt!))
       .order("desc")
-      .take(100);
+      .take(10);
     const deletions = [];
     for (const value of valuesToDelete) {
       deletions.push(ctx.db.delete(value._id));
       deletions.push(ctx.db.delete(value.valueId));
     }
     await Promise.all(deletions);
-    if (valuesToDelete.length === 100) {
-      console.debug("More than 100 values to delete, scheduling another purge");
+    if (valuesToDelete.length === 10) {
+      console.debug("More than 10 values to delete, scheduling another purge");
       await ctx.scheduler.runAfter(0, api.crons.purge, {
-        expiresAt: expiresAt ? valuesToDelete[99].expiresAt : undefined,
+        expiresAt: expiresAt ? valuesToDelete[9].expiresAt : undefined,
       });
     } else if (valuesToDelete.length > 0) {
       console.debug("Cache purge complete");
