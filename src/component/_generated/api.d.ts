@@ -1,5 +1,3 @@
-/* prettier-ignore-start */
-
 /* eslint-disable */
 /**
  * Generated `api` utility.
@@ -19,6 +17,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -69,7 +68,7 @@ export type Mounts = {
     removeAll: FunctionReference<
       "mutation",
       "public",
-      { before?: number; name?: string },
+      { batchSize?: number; before?: number; name?: string },
       null
     >;
   };
@@ -89,5 +88,3 @@ export declare const internal: FilterApi<
 >;
 
 export declare const components: {};
-
-/* prettier-ignore-end */
