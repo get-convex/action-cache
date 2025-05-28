@@ -77,7 +77,7 @@ export class ActionCache<
       ttl,
     });
     if (result.kind === "hit") {
-      return result.value;
+      return result.value as FunctionReturnType<Action>;
     }
     const value = await ctx.runAction(fn, args);
     await ctx.runMutation(this.component.lib.put, {
