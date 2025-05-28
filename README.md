@@ -18,7 +18,9 @@ const cache = new ActionCache(components.actionCache, {
 export const myFunction = action({
   handler: async (ctx, args) => {
     // Call it with the parameters to `myExpensiveAction`
-    await cache.fetch(ctx, { foo: "bar" });
+    const result = await cache.fetch(ctx, { foo: "bar" });
+    // Do something with the result or just return it
+    return result;
   },
 });
 
