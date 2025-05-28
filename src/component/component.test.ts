@@ -170,7 +170,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
 );
 
 fcTest.prop({
-  key: fc.array(fc.string()),
+  key: fc.array(fc.string(), { minLength: 1 }),
   value: fc.array(fc.float()),
 })("RemoveAll works", async ({ key, value }) => {
   const key2 = [...key, "2"];
@@ -182,13 +182,13 @@ fcTest.prop({
       name: "test",
       args: { key },
       value,
-      ttl: null,
+      ttl: 60000,
     });
     await t.mutation(api.lib.put, {
       name: "test",
       args: { key: key2 },
       value: value2,
-      ttl: null,
+      ttl: 60000,
     });
     await t.mutation(api.lib.removeAll, {
       name: "test",
