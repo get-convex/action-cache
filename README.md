@@ -16,13 +16,12 @@ const cache = new ActionCache(components.actionCache, {
 });
 
 export const myFunction = action({
-  handler: async (ctx, args) => {
+  // NOTE: If we're returning the result, we need explicitly type the return value.
+  // Refer to https://docs.convex.dev/functions/actions#dealing-with-circular-type-inference for more info.
+  handler: async (ctx, args): Promise<string> => {
     // Call it with the parameters to `myExpensiveAction`
-    const result: string = await cache.fetch(ctx, { foo: "bar" });
-    // NOTE: If we're returning the result, we need explicitly type it.
-    // Refer to https://docs.convex.dev/functions/actions#dealing-with-circular-type-inference for more info.
+    const result = await cache.fetch(ctx, { foo: "bar" });
 
-    
     // Do something with the result or just return it
     return result;
   },
