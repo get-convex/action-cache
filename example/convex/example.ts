@@ -18,7 +18,7 @@ const embeddingsCache = new ActionCache(components.actionCache, {
 
 export const embed = internalAction({
   args: { text: v.string() },
-  handler: async (_ctx, { text }) => {
+  handler: async (_ctx, { text }): Promise<number[]> => {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error("OPENAI_API_KEY environment variable not set!");
@@ -37,9 +37,9 @@ export const embed = internalAction({
       throw new Error(`OpenAI API error: ${msg}`);
     }
     const json = await resp.json();
-    const vector = json["data"][0]["embedding"];
+    const vector = json["data"][0]["embedding"] as number[];
     console.log(`Computed embedding of "${text}": ${vector.length} dimensions`);
-    return vector as number[];
+    return vector;
   },
 });
 

@@ -29,7 +29,7 @@ export const myFunction = action({
 
 export const myExpensiveAction = internalAction({
   args: { foo: v.string() },
-  handler: async (ctx, args) {
+  handler: async (ctx, args): Promise<string> {
     const data = await generateLLMResponse(ctx, args);
     return data;
   }
@@ -152,7 +152,7 @@ export const vectorSearch = action({
     });
     const rows: SearchResult[] = await ctx.runQuery(
       internal.example.fetchResults,
-      { results },
+      { results }
     );
     return rows;
   },
