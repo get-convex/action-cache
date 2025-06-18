@@ -57,7 +57,7 @@ export type Mounts = {
         ttl: number | null;
         value: any;
       },
-      null
+      { cacheHit: boolean; deletedExpiredEntry: boolean }
     >;
     remove: FunctionReference<
       "mutation",

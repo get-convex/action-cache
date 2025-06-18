@@ -11,7 +11,7 @@ import {
   GenericQueryCtx,
   getFunctionName,
 } from "convex/server";
-import { GenericId } from "convex/values";
+import type { GenericId, JSONValue } from "convex/values";
 import { api } from "../component/_generated/api";
 
 export interface ActionCacheConfig<
@@ -35,6 +35,10 @@ export interface ActionCacheConfig<
    * fetched, the shorter of the TTLs will be used.
    */
   ttl?: number;
+  /**
+   * Whether to log cache hits and misses.
+   */
+  log?: boolean;
 }
 
 export class ActionCache<
@@ -77,17 +81,38 @@ export class ActionCache<
       ttl,
     });
     if (result.kind === "hit") {
+      this.#log({ get: "hit" });
       return result.value as FunctionReturnType<Action>;
     }
     const value = await ctx.runAction(fn, args);
-    await ctx.runMutation(this.component.lib.put, {
+    const putResult = await ctx.runMutation(this.component.lib.put, {
       name: this.name,
       args,
       value,
       expiredEntry: result.expiredEntry,
       ttl,
     });
+    this.#log({
+      get: "miss",
+      put: putResult.cacheHit
+        ? "hit"
+        : putResult.deletedExpiredEntry
+          ? "replaced"
+          : "created",
+    });
     return value as FunctionReturnType<Action>;
+  }
+
+  #log(args: Record<string, JSONValue>) {
+    if (this.config.log) {
+      console.log(
+        JSON.stringify({
+          type: "action-cache-stats",
+          name: this.name,
+          ...args,
+        })
+      );
+    }
   }
 
   /**

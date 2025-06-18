@@ -67,13 +67,16 @@ export const put = mutation({
     ttl: v.union(v.float64(), v.null()),
     expiredEntry: v.optional(v.id("values")),
   },
-  returns: v.null(),
+  returns: v.object({
+    cacheHit: v.boolean(),
+    deletedExpiredEntry: v.boolean(),
+  }),
   handler: async (ctx, args) => {
     const match = await lookup(ctx, args);
 
     // Try to reuse an existing entry if present.
     if (match && canReuseCacheEntry(args.expiredEntry, match, args.ttl)) {
-      return;
+      return { cacheHit: true, deletedExpiredEntry: false };
     }
     // Otherwise, delete the existing entry and insert a new one.
     if (match) {
@@ -94,6 +97,7 @@ export const put = mutation({
         metadataId,
       });
     }
+    return { cacheHit: false, deletedExpiredEntry: !!match };
   },
 });
 
