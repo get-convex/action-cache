@@ -18,7 +18,7 @@ const cache = new ActionCache(components.actionCache, {
 export const myFunction = action({
   // NOTE: If we're returning the result, we need explicitly type the return value.
   // Refer to https://docs.convex.dev/functions/actions#dealing-with-circular-type-inference for more info.
-  handler: async (ctx, args): Promise<string> => {
+  handler: async (ctx, args): Promise<{ text: string }> => {
     // Call it with the parameters to `myExpensiveAction`
     const result = await cache.fetch(ctx, { foo: "bar" });
 
@@ -29,7 +29,7 @@ export const myFunction = action({
 
 export const myExpensiveAction = internalAction({
   args: { foo: v.string() },
-  handler: async (ctx, args): Promise<string> {
+  handler: async (ctx, args): Promise<{ text: string }> {
     const data = await generateLLMResponse(ctx, args);
     return data;
   }
