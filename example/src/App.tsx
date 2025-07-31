@@ -1,14 +1,14 @@
 import { FormEvent, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { CUISINES } from "../convex/constants";
-import { SearchResult } from "../convex/example";
+import { Cuisine, CUISINES } from "../convex/constants";
+import { SearchResult } from "../convex/foods";
 
 function Insert() {
   const [description, setDescription] = useState("");
-  const [cuisine, setCuisine] = useState("american");
+  const [cuisine, setCuisine] = useState<Cuisine>("american");
   const [insertInProgress, setInsertInProgress] = useState(false);
-  const insert = useAction(api.example.insert);
+  const insert = useAction(api.foods.insert);
 
   async function handleInsert(event: FormEvent) {
     event.preventDefault();
@@ -29,7 +29,10 @@ function Insert() {
           onChange={(event) => setDescription(event.target.value)}
           placeholder="Description"
         />
-        <select value={cuisine} onChange={(e) => setCuisine(e.target.value)}>
+        <select
+          value={cuisine}
+          onChange={(e) => setCuisine(e.target.value as Cuisine)}
+        >
           {Object.entries(CUISINES).map(([c, e]) => (
             <option key={c} value={c}>
               {presentCuisine(c, e)}
@@ -52,13 +55,13 @@ function presentCuisine(name: string, emoji: string) {
 
 function Search() {
   const [searchText, setSearchText] = useState("");
-  const [searchFilter, setSearchFilter] = useState<string[]>([]);
+  const [searchFilter, setSearchFilter] = useState<Cuisine[]>([]);
   const [searchResults, setSearchResults] = useState<
     SearchResult[] | undefined
   >();
   const [searchInProgress, setSearchInProgress] = useState(false);
 
-  const vectorSearch = useAction(api.example.vectorSearch);
+  const vectorSearch = useAction(api.foods.vectorSearch);
 
   const handleSearch = async (event: FormEvent) => {
     event.preventDefault();
@@ -90,7 +93,9 @@ function Search() {
           value={searchFilter}
           multiple={true}
           onChange={(e) =>
-            setSearchFilter([...e.target.selectedOptions].map((o) => o.value))
+            setSearchFilter(
+              [...e.target.selectedOptions].map((o) => o.value as Cuisine)
+            )
           }
         >
           {Object.entries(CUISINES).map(([c, e]) => (
@@ -108,7 +113,7 @@ function Search() {
             <ul>
               {searchResults.map((result) => (
                 <li key={result._id}>
-                  <span>{(CUISINES as any)[result.cuisine]}</span>
+                  <span>{CUISINES[result.cuisine]}</span>
                   <span>{result.description}</span>
                   <span>{result._score.toFixed(4)}</span>
                 </li>
@@ -122,9 +127,9 @@ function Search() {
 }
 
 export default function App() {
-  const entries = useQuery(api.example.list);
+  const entries = useQuery(api.foods.list);
   const [submitted, setSubmitted] = useState(false);
-  const populate = useAction(api.example.populate);
+  const populate = useAction(api.foods.populate);
   return (
     <main>
       <h1>🍔 Food vector search</h1>
@@ -152,7 +157,7 @@ export default function App() {
         <ul>
           {entries.map((entry) => (
             <li key={entry._id}>
-              <span>{(CUISINES as any)[entry.cuisine]}</span>
+              <span>{CUISINES[entry.cuisine]}</span>
               <span>{entry.description}</span>
             </li>
           ))}

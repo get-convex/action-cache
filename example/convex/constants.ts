@@ -8,7 +8,12 @@ export const CUISINES = {
   french: "🇫🇷",
 };
 
-export const EXAMPLE_DATA = [
+export type Cuisine = keyof typeof CUISINES;
+
+export const EXAMPLE_DATA: {
+  description: string;
+  cuisine: keyof typeof CUISINES;
+}[] = [
   {
     description:
       'Al pastor (from Spanish, "shepherd style"), tacos al pastor, or tacos de trompo is a preparation of spit-grilled slices of pork originating in the Central Mexican region of Puebla and Mexico City, although today it is a common menu item found in taquerías throughout Mexico. The method of preparing and cooking al pastor is based on the lamb shawarma brought by Lebanese immigrants to the region. Al pastor features a flavor palate that uses traditional Mexican adobada (marinade). It is a popular street food that has spread to the United States. In some places of northern Mexico and coastal Mexico, such as in Baja California, taco al pastor is known as taco de trompo or taco de adobada.',

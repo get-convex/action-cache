@@ -10,6 +10,7 @@
 
 import type * as constants from "../constants.js";
 import type * as example from "../example.js";
+import type * as foods from "../foods.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +29,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   constants: typeof constants;
   example: typeof example;
+  foods: typeof foods;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
