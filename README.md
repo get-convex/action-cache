@@ -167,6 +167,19 @@ want to use, or change the name to start fresh, like `embed-v2`.
 
 If the return value changes, it is important to change the name so you don't get unexpected values.
 
+### Updating the cache before it expires
+
+It's convenient to lazily run the action when there is a cache miss. However,
+this means that some requests will be slow, and many competeing requests may
+race to all run the action and populate the cache.
+
+You can avoid this by calling `fetch` with the `force` option. This will force
+the action to run and update the cache, even if there is a cache hit. In the
+meantime, other requests will get a cache hit.
+
+If you call this from a cron job, the cache will always have an entry (unless
+the action fails).
+
 ### Clearing values
 
 To clear old values, you can:

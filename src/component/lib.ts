@@ -39,7 +39,7 @@ export const get = query({
       const metadataDoc = await ctx.db.get(match.metadataId);
       expiresAt = metadataDoc?.expiresAt ?? null;
     }
-    if (args.ttl) {
+    if (args.ttl !== undefined && args.ttl !== null) {
       expiresAt = Math.min(
         expiresAt ?? Infinity,
         match._creationTime + args.ttl
