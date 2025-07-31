@@ -153,6 +153,14 @@ export class ActionCache<
   }
 }
 
+export async function removeAll(
+  ctx: RunMutationCtx,
+  component: UseApi<typeof api>,
+  before?: number
+) {
+  return ctx.runMutation(component.lib.removeAll, { before });
+}
+
 /* Type utils follow */
 
 type RunMutationCtx = {
