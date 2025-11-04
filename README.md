@@ -94,16 +94,16 @@ Start by defining the [Convex action](https://docs.convex.dev/functions/actions)
 Set your API key [environment variable](https://docs.convex.dev/production/environment-variables)
 
 ```bash
-npx convex env set OPENAI_KEY <your-api-key>
+npx convex env set OPENAI_API_KEY <your-api-key>
 ```
 
 ```ts
 export const embed = internalAction({
   args: { text: v.string() },
   handler: async (_ctx, { text }) => {
-    const apiKey = process.env.OPENAI_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error("OPENAI_KEY environment variable not set!");
+      throw new Error("OPENAI_API_KEY environment variable not set!");
     }
     const req = { input: text, model: "text-embedding-ada-002" };
     const resp = await fetch("https://api.openai.com/v1/embeddings", {
