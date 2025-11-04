@@ -31,59 +31,13 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   lib: typeof lib;
 }>;
-export type Mounts = {
-  crons: {
-    purge: FunctionReference<
-      "mutation",
-      "public",
-      { expiresAt?: number },
-      null
-    >;
-  };
-  lib: {
-    get: FunctionReference<
-      "query",
-      "public",
-      { args: any; name: string; ttl: number | null },
-      { kind: "hit"; value: any } | { expiredEntry?: string; kind: "miss" }
-    >;
-    put: FunctionReference<
-      "mutation",
-      "public",
-      {
-        args: any;
-        expiredEntry?: string;
-        name: string;
-        ttl: number | null;
-        value: any;
-      },
-      { cacheHit: boolean; deletedExpiredEntry: boolean }
-    >;
-    remove: FunctionReference<
-      "mutation",
-      "public",
-      { args: any; name: string },
-      null
-    >;
-    removeAll: FunctionReference<
-      "mutation",
-      "public",
-      { batchSize?: number; before?: number; name?: string },
-      null
-    >;
-  };
-};
-// For now fullApiWithMounts is only fullApi which provides
-// jump-to-definition in component client code.
-// Use Mounts for the same type without the inference.
-declare const fullApiWithMounts: typeof fullApi;
 
 export declare const api: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "public">
 >;
 export declare const internal: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "internal">
 >;
 

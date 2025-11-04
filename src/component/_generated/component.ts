@@ -1,6 +1,6 @@
 /* eslint-disable */
 /**
- * Generated `api` utility.
+ * Generated `ComponentApi` utility.
  *
  * THIS CODE IS AUTOMATICALLY GENERATED.
  *
@@ -8,47 +8,26 @@
  * @module
  */
 
-import type * as constants from "../constants.js";
-import type * as example from "../example.js";
-import type * as foods from "../foods.js";
-
-import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
+import type { FunctionReference } from "convex/server";
 
 /**
- * A utility for referencing Convex functions in your app's API.
+ * A utility for referencing a Convex component's API.
  *
  * Usage:
  * ```js
- * const myFunctionReference = api.myModule.myFunction;
+ * export type MyComponentApi = ComponentApi;
  * ```
  */
-declare const fullApi: ApiFromModules<{
-  constants: typeof constants;
-  example: typeof example;
-  foods: typeof foods;
-}>;
 
-export declare const api: FilterApi<
-  typeof fullApi,
-  FunctionReference<any, "public">
->;
-export declare const internal: FilterApi<
-  typeof fullApi,
-  FunctionReference<any, "internal">
->;
-
-export declare const components: {
-  actionCache: {
+export type ComponentApi<Name extends string | undefined = string | undefined> =
+  {
     crons: {
       purge: FunctionReference<
         "mutation",
         "internal",
         { expiresAt?: number },
-        null
+        null,
+        Name
       >;
     };
     lib: {
@@ -56,7 +35,8 @@ export declare const components: {
         "query",
         "internal",
         { args: any; name: string; ttl: number | null },
-        { kind: "hit"; value: any } | { expiredEntry?: string; kind: "miss" }
+        { kind: "hit"; value: any } | { expiredEntry?: string; kind: "miss" },
+        Name
       >;
       put: FunctionReference<
         "mutation",
@@ -68,20 +48,22 @@ export declare const components: {
           ttl: number | null;
           value: any;
         },
-        { cacheHit: boolean; deletedExpiredEntry: boolean }
+        { cacheHit: boolean; deletedExpiredEntry: boolean },
+        Name
       >;
       remove: FunctionReference<
         "mutation",
         "internal",
         { args: any; name: string },
-        null
+        null,
+        Name
       >;
       removeAll: FunctionReference<
         "mutation",
         "internal",
         { batchSize?: number; before?: number; name?: string },
-        null
+        null,
+        Name
       >;
     };
   };
-};
