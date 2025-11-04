@@ -1,13 +1,13 @@
 import {
   createFunctionHandle,
-  FunctionArgs,
-  FunctionReference,
-  FunctionReturnType,
-  FunctionVisibility,
-  GenericActionCtx,
-  GenericDataModel,
-  GenericMutationCtx,
-  GenericQueryCtx,
+  type FunctionArgs,
+  type FunctionReference,
+  type FunctionReturnType,
+  type FunctionVisibility,
+  type GenericActionCtx,
+  type GenericDataModel,
+  type GenericMutationCtx,
+  type GenericQueryCtx,
   getFunctionName,
 } from "convex/server";
 import type { JSONValue } from "convex/values";

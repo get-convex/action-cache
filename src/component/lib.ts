@@ -3,7 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { api } from "./_generated/api";
 import { del } from "./cache";
 import { lookup } from "./cache";
-import { Doc, Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 
 /**
  * Get a value from the cache, returning null if it doesn't exist or has expired.
