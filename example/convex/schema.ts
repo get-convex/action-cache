@@ -5,7 +5,7 @@ import { CUISINES, Cuisine } from "./constants";
 const cuisines = Object.keys(CUISINES) as Cuisine[];
 
 export const vCuisines = v.union(
-  ...cuisines.map((cuisine) => v.literal(cuisine))
+  ...cuisines.map((cuisine) => v.literal(cuisine)),
 );
 
 export default defineSchema({

@@ -55,7 +55,7 @@ export class ActionCache<
    */
   constructor(
     public component: ComponentApi,
-    private config: ActionCacheConfig<Action>
+    private config: ActionCacheConfig<Action>,
   ) {
     this.name = this.config.name || getFunctionName(this.config.action);
   }
@@ -70,7 +70,7 @@ export class ActionCache<
   async fetch(
     ctx: RunQueryCtx & RunMutationCtx & RunActionCtx,
     args: FunctionArgs<Action>,
-    opts?: { ttl?: number; force?: boolean }
+    opts?: { ttl?: number; force?: boolean },
   ) {
     const fn = await createFunctionHandle(this.config.action);
     const ttl = opts?.ttl ?? this.config.ttl ?? null;
@@ -110,7 +110,7 @@ export class ActionCache<
           type: "action-cache-stats",
           name: this.name,
           ...args,
-        })
+        }),
       );
     }
   }
@@ -155,7 +155,7 @@ export class ActionCache<
 export async function removeAll(
   ctx: RunMutationCtx,
   component: ComponentApi,
-  before?: number
+  before?: number,
 ) {
   return ctx.runMutation(component.lib.removeAll, { before });
 }

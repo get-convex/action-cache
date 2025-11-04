@@ -72,12 +72,12 @@ export const getWeatherForLocation = action({
     const [lat, long] = await geocodingCache.fetch(
       ctx,
       { location },
-      { force: args.force }
+      { force: args.force },
     );
     const weather = await weatherCache.fetch(
       ctx,
       { latitude: lat, longitude: long },
-      { force: args.force }
+      { force: args.force },
     );
     const end = Date.now();
     console.log(`getWeatherForLocation(${location}) took ${end - start}ms`);
@@ -123,7 +123,7 @@ export const testConcurrently = action({
     const individualDurations = await Promise.all(promises);
     const totalDuration = Date.now() - start;
     console.log(
-      `Loaded weather for ${places.length} places in ${totalDuration}ms`
+      `Loaded weather for ${places.length} places in ${totalDuration}ms`,
     );
     for (const individualDuration of individualDurations) {
       console.log(`  Fetch: ${individualDuration}ms`);
