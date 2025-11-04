@@ -1,14 +1,7 @@
 import { v } from "convex/values";
-import {
-  query,
-  action,
-  internalMutation,
-  internalAction,
-  mutation,
-} from "./_generated/server";
+import { action, internalAction, mutation } from "./_generated/server";
 import { internal, components } from "./_generated/api";
 import { ActionCache, removeAll } from "@convex-dev/action-cache";
-import schema from "./schema";
 
 const geocodingCache = new ActionCache(components.actionCache, {
   action: internal.example.geocode,

@@ -1,6 +1,5 @@
 import {
   createFunctionHandle,
-  Expand,
   FunctionArgs,
   FunctionReference,
   FunctionReturnType,
@@ -11,8 +10,8 @@ import {
   GenericQueryCtx,
   getFunctionName,
 } from "convex/server";
-import type { GenericId, JSONValue } from "convex/values";
-import { api } from "../component/_generated/api";
+import type { JSONValue } from "convex/values";
+import type { ComponentApi } from "../component/_generated/component.js";
 
 export interface ActionCacheConfig<
   Action extends FunctionReference<"action", FunctionVisibility>,
@@ -55,7 +54,7 @@ export class ActionCache<
    * @param config - The configuration for this action cache.
    */
   constructor(
-    public component: UseApi<typeof api>,
+    public component: ComponentApi,
     private config: ActionCacheConfig<Action>
   ) {
     this.name = this.config.name || getFunctionName(this.config.action);
@@ -155,7 +154,7 @@ export class ActionCache<
 
 export async function removeAll(
   ctx: RunMutationCtx,
-  component: UseApi<typeof api>,
+  component: ComponentApi,
   before?: number
 ) {
   return ctx.runMutation(component.lib.removeAll, { before });
@@ -172,30 +171,3 @@ type RunActionCtx = {
 type RunQueryCtx = {
   runQuery: GenericQueryCtx<GenericDataModel>["runQuery"];
 };
-
-export type OpaqueIds<T> =
-  T extends GenericId<infer _T>
-    ? string
-    : T extends (infer U)[]
-      ? OpaqueIds<U>[]
-      : T extends object
-        ? { [K in keyof T]: OpaqueIds<T[K]> }
-        : T;
-
-export type UseApi<API> = Expand<{
-  [mod in keyof API]: API[mod] extends FunctionReference<
-    infer FType,
-    "public",
-    infer FArgs,
-    infer FReturnType,
-    infer FComponentPath
-  >
-    ? FunctionReference<
-        FType,
-        "internal",
-        OpaqueIds<FArgs>,
-        OpaqueIds<FReturnType>,
-        FComponentPath
-      >
-    : UseApi<API[mod]>;
-}>;
