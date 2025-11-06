@@ -1,8 +1,8 @@
 import { convexTest } from "convex-test";
-import schema from "./schema";
+import schema from "./schema.js";
 import { expect, vi } from "vitest";
-import { api } from "./_generated/api";
-import { modules } from "./setup.test";
+import { api } from "./_generated/api.js";
+import { modules } from "./setup.test.js";
 import { test as fcTest, fc } from "@fast-check/vitest";
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(

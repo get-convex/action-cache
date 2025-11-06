@@ -1,9 +1,9 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { api } from "./_generated/api";
-import { del } from "./cache";
-import { lookup } from "./cache";
-import type { Doc, Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server.js";
+import { api } from "./_generated/api.js";
+import { del } from "./cache.js";
+import { lookup } from "./cache.js";
+import type { Doc, Id } from "./_generated/dataModel.js";
 
 /**
  * Get a value from the cache, returning null if it doesn't exist or has expired.
