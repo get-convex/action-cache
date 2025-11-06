@@ -1,6 +1,6 @@
 import { cronJobs } from "convex/server";
-import { api } from "./_generated/api";
-import { mutation } from "./_generated/server";
+import { api } from "./_generated/api.js";
+import { mutation } from "./_generated/server.js";
 import { v } from "convex/values";
 
 const crons = cronJobs();
