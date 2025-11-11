@@ -1,8 +1,8 @@
 import { convexTest } from "convex-test";
-import schema from "./schema";
+import schema from "./schema.js";
 import { expect, vi } from "vitest";
-import { api } from "./_generated/api";
-import { modules } from "./setup.test";
+import { api } from "./_generated/api.js";
+import { modules } from "./setup.test.js";
 import { test as fcTest, fc } from "@fast-check/vitest";
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -28,7 +28,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     });
     expect(result.kind).toBe("hit");
     expect(result.value).toEqual(value);
-  }
+  },
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -53,7 +53,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     });
     expect(result.kind).toBe("hit");
     expect(result.value).toEqual(value);
-  }
+  },
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -106,7 +106,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
     });
     expect(result3.kind).toBe("hit");
     expect(result3.value).toEqual(value);
-  }
+  },
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -128,7 +128,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       const metadata = await ctx.db.query("metadata").collect();
       expect(metadata).toHaveLength(0);
     });
-  }
+  },
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -147,7 +147,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       ttl: null,
     });
     expect(result.kind).toBe("miss");
-  }
+  },
 );
 
 fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
@@ -166,7 +166,7 @@ fcTest.prop({ key: fc.array(fc.string()), value: fc.array(fc.float()) })(
       ttl: -1,
     });
     expect(result.kind).toBe("miss");
-  }
+  },
 );
 
 fcTest.prop({

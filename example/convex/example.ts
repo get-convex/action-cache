@@ -1,14 +1,7 @@
 import { v } from "convex/values";
-import {
-  query,
-  action,
-  internalMutation,
-  internalAction,
-  mutation,
-} from "./_generated/server";
+import { action, internalAction, mutation } from "./_generated/server";
 import { internal, components } from "./_generated/api";
 import { ActionCache, removeAll } from "@convex-dev/action-cache";
-import schema from "./schema";
 
 const geocodingCache = new ActionCache(components.actionCache, {
   action: internal.example.geocode,
@@ -79,12 +72,12 @@ export const getWeatherForLocation = action({
     const [lat, long] = await geocodingCache.fetch(
       ctx,
       { location },
-      { force: args.force }
+      { force: args.force },
     );
     const weather = await weatherCache.fetch(
       ctx,
       { latitude: lat, longitude: long },
-      { force: args.force }
+      { force: args.force },
     );
     const end = Date.now();
     console.log(`getWeatherForLocation(${location}) took ${end - start}ms`);
@@ -130,7 +123,7 @@ export const testConcurrently = action({
     const individualDurations = await Promise.all(promises);
     const totalDuration = Date.now() - start;
     console.log(
-      `Loaded weather for ${places.length} places in ${totalDuration}ms`
+      `Loaded weather for ${places.length} places in ${totalDuration}ms`,
     );
     for (const individualDuration of individualDurations) {
       console.log(`  Fetch: ${individualDuration}ms`);

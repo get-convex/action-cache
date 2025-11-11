@@ -8,21 +8,22 @@
  * @module
  */
 
-import type * as constants from "../constants.js";
-import type * as example from "../example.js";
-import type * as foods from "../foods.js";
+import type * as cache from "../cache.js";
+import type * as crons from "../crons.js";
+import type * as lib from "../lib.js";
 
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import { anyApi, componentsGeneric } from "convex/server";
 
-declare const fullApi: ApiFromModules<{
-  constants: typeof constants;
-  example: typeof example;
-  foods: typeof foods;
-}>;
+const fullApi: ApiFromModules<{
+  cache: typeof cache;
+  crons: typeof crons;
+  lib: typeof lib;
+}> = anyApi as any;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
@@ -32,10 +33,10 @@ declare const fullApi: ApiFromModules<{
  * const myFunctionReference = api.myModule.myFunction;
  * ```
  */
-export declare const api: FilterApi<
+export const api: FilterApi<
   typeof fullApi,
   FunctionReference<any, "public">
->;
+> = anyApi as any;
 
 /**
  * A utility for referencing Convex functions in your app's internal API.
@@ -45,11 +46,9 @@ export declare const api: FilterApi<
  * const myFunctionReference = internal.myModule.myFunction;
  * ```
  */
-export declare const internal: FilterApi<
+export const internal: FilterApi<
   typeof fullApi,
   FunctionReference<any, "internal">
->;
+> = anyApi as any;
 
-export declare const components: {
-  actionCache: import("@convex-dev/action-cache/_generated/component.js").ComponentApi<"actionCache">;
-};
+export const components = componentsGeneric() as unknown as {};

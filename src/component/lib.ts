@@ -1,9 +1,9 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { api } from "./_generated/api";
-import { del } from "./cache";
-import { lookup } from "./cache";
-import { Doc, Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server.js";
+import { api } from "./_generated/api.js";
+import { del } from "./cache.js";
+import { lookup } from "./cache.js";
+import type { Doc, Id } from "./_generated/dataModel.js";
 
 /**
  * Get a value from the cache, returning null if it doesn't exist or has expired.
@@ -24,7 +24,7 @@ export const get = query({
     v.object({
       kind: v.literal("miss"),
       expiredEntry: v.optional(v.id("values")),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
     const match = await lookup(ctx, args);
@@ -42,7 +42,7 @@ export const get = query({
     if (args.ttl !== undefined && args.ttl !== null) {
       expiresAt = Math.min(
         expiresAt ?? Infinity,
-        match._creationTime + args.ttl
+        match._creationTime + args.ttl,
       );
     }
     if (expiresAt && expiresAt <= Date.now()) {
@@ -104,7 +104,7 @@ export const put = mutation({
 function canReuseCacheEntry(
   expiredEntry: Id<"values"> | undefined,
   existingEntry: Doc<"values">,
-  ttl: number | null
+  ttl: number | null,
 ) {
   // If we're setting a TTL and the previous entry doesn't have one, we can't reuse it.
   if (!existingEntry.metadataId && ttl !== null) {
@@ -150,7 +150,7 @@ export const removeAll = mutation({
       : ctx.db
           .query("values")
           .withIndex("by_creation_time", (q) =>
-            q.lte("_creationTime", before ?? Date.now())
+            q.lte("_creationTime", before ?? Date.now()),
           );
     const matches = await query.order("desc").take(batchSize);
     for (const match of matches) {
@@ -160,7 +160,7 @@ export const removeAll = mutation({
       await ctx.scheduler.runAfter(
         0,
         api.lib.removeAll,
-        name ? { name } : { before: matches[batchSize - 1]!._creationTime }
+        name ? { name } : { before: matches[batchSize - 1]!._creationTime },
       );
     }
   },

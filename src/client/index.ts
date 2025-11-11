@@ -1,18 +1,17 @@
 import {
   createFunctionHandle,
-  Expand,
-  FunctionArgs,
-  FunctionReference,
-  FunctionReturnType,
-  FunctionVisibility,
-  GenericActionCtx,
-  GenericDataModel,
-  GenericMutationCtx,
-  GenericQueryCtx,
+  type FunctionArgs,
+  type FunctionReference,
+  type FunctionReturnType,
+  type FunctionVisibility,
+  type GenericActionCtx,
+  type GenericDataModel,
+  type GenericMutationCtx,
+  type GenericQueryCtx,
   getFunctionName,
 } from "convex/server";
-import type { GenericId, JSONValue } from "convex/values";
-import { api } from "../component/_generated/api";
+import type { JSONValue } from "convex/values";
+import type { ComponentApi } from "../component/_generated/component.js";
 
 export interface ActionCacheConfig<
   Action extends FunctionReference<"action", FunctionVisibility>,
@@ -55,8 +54,8 @@ export class ActionCache<
    * @param config - The configuration for this action cache.
    */
   constructor(
-    public component: UseApi<typeof api>,
-    private config: ActionCacheConfig<Action>
+    public component: ComponentApi,
+    private config: ActionCacheConfig<Action>,
   ) {
     this.name = this.config.name || getFunctionName(this.config.action);
   }
@@ -71,7 +70,7 @@ export class ActionCache<
   async fetch(
     ctx: RunQueryCtx & RunMutationCtx & RunActionCtx,
     args: FunctionArgs<Action>,
-    opts?: { ttl?: number; force?: boolean }
+    opts?: { ttl?: number; force?: boolean },
   ) {
     const fn = await createFunctionHandle(this.config.action);
     const ttl = opts?.ttl ?? this.config.ttl ?? null;
@@ -111,7 +110,7 @@ export class ActionCache<
           type: "action-cache-stats",
           name: this.name,
           ...args,
-        })
+        }),
       );
     }
   }
@@ -155,8 +154,8 @@ export class ActionCache<
 
 export async function removeAll(
   ctx: RunMutationCtx,
-  component: UseApi<typeof api>,
-  before?: number
+  component: ComponentApi,
+  before?: number,
 ) {
   return ctx.runMutation(component.lib.removeAll, { before });
 }
@@ -172,30 +171,3 @@ type RunActionCtx = {
 type RunQueryCtx = {
   runQuery: GenericQueryCtx<GenericDataModel>["runQuery"];
 };
-
-export type OpaqueIds<T> =
-  T extends GenericId<infer _T>
-    ? string
-    : T extends (infer U)[]
-      ? OpaqueIds<U>[]
-      : T extends object
-        ? { [K in keyof T]: OpaqueIds<T[K]> }
-        : T;
-
-export type UseApi<API> = Expand<{
-  [mod in keyof API]: API[mod] extends FunctionReference<
-    infer FType,
-    "public",
-    infer FArgs,
-    infer FReturnType,
-    infer FComponentPath
-  >
-    ? FunctionReference<
-        FType,
-        "internal",
-        OpaqueIds<FArgs>,
-        OpaqueIds<FReturnType>,
-        FComponentPath
-      >
-    : UseApi<API[mod]>;
-}>;

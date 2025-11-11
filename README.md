@@ -4,7 +4,12 @@
 
 <!-- START: Include on https://convex.dev/components -->
 
-Sometimes your app needs to fetch information from a third-party API that is slow or costs money. Caching can help! This is a Convex component that can cache the results of expensive functions and set an optional TTL. Expired entries are cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name (defaults to function name) and the arguments to the action that generates the cache values.
+Sometimes your app needs to fetch information from a third-party API that is
+slow or costs money. Caching can help! This is a Convex component that can cache
+the results of expensive functions and set an optional TTL. Expired entries are
+cleaned up via a cron job once a day. The cache key is the `ActionCache`'s name
+(defaults to function name) and the arguments to the action that generates the
+cache values.
 
 ```ts
 import { action } from "./_generated/server";
@@ -36,15 +41,17 @@ export const myExpensiveAction = internalAction({
 })
 ```
 
-To invalidate the cache, you can set a new name explicitly and/or clear cached values by name.
+To invalidate the cache, you can set a new name explicitly and/or clear cached
+values by name.
 
 ## Pre-requisite: Convex
 
-You'll need an existing Convex project to use the component.
-Convex is a hosted backend platform, including a database, serverless functions,
-and a ton more you can learn about [here](https://docs.convex.dev/get-started).
+You'll need an existing Convex project to use the component. Convex is a hosted
+backend platform, including a database, serverless functions, and a ton more you
+can learn about [here](https://docs.convex.dev/get-started).
 
-Run `npm create convex` or follow any of the [quickstarts](https://docs.convex.dev/home) to set one up.
+Run `npm create convex` or follow any of the
+[quickstarts](https://docs.convex.dev/home) to set one up.
 
 ## Installation
 
@@ -54,12 +61,13 @@ Install the component package:
 npm install @convex-dev/action-cache
 ```
 
-Create a `convex.config.ts` file in your app's `convex/` folder and install the component by calling `use`:
+Create a `convex.config.ts` file in your app's `convex/` folder and install the
+component by calling `use`:
 
 ```ts
 // convex/convex.config.ts
 import { defineApp } from "convex/server";
-import cache from "@convex-dev/action-cache/convex.config";
+import cache from "@convex-dev/action-cache/convex.config.js";
 
 const app = defineApp();
 app.use(cache);
@@ -67,12 +75,17 @@ app.use(cache);
 export default app;
 ```
 
-Finally, create a new `ActionCache` with optional name and expiration within your Convex project, and point it to the installed component.
+Finally, create a new `ActionCache` with optional name and expiration within
+your Convex project, and point it to the installed component.
 
-- The `name` field can be used for identifying the function or version being used to create the values in the cache and can also be used for grouping entries to remove.
-- The `ttl` (Time-To-Live) field determines how long the cache entries are valid, in milliseconds.
+- The `name` field can be used for identifying the function or version being
+  used to create the values in the cache and can also be used for grouping
+  entries to remove.
+- The `ttl` (Time-To-Live) field determines how long the cache entries are
+  valid, in milliseconds.
   - If no `ttl` is provided, the cache entries are kept indefinitely.
-  - If an `ttl` is provided, expired cache entries are deleted when they are retrieved and in a daily cron job.
+  - If an `ttl` is provided, expired cache entries are deleted when they are
+    retrieved and in a daily cron job.
 
 ```ts
 import { ActionCache } from "@convex-dev/action-cache";
@@ -87,23 +100,31 @@ const cache = new ActionCache(components.actionCache, {
 
 ## Example
 
-Suppose you're building an app that uses [vector search](https://docs.convex.dev/search/vector-search). Calculating embeddings is often expensive - in our case, we are using OpenAI's API which adds latency to every search and costs money to use. We can reduce the number of API calls by caching the results!
+Suppose you're building an app that uses
+[vector search](https://docs.convex.dev/search/vector-search). Calculating
+embeddings is often expensive - in our case, we are using OpenAI's API which
+adds latency to every search and costs money to use. We can reduce the number of
+API calls by caching the results!
 
-Start by defining the [Convex action](https://docs.convex.dev/functions/actions) that calls the API to create embeddings. Feel free to substitute your favorite embeddings API. You may need to adjust the vector dimensions in the schema in `example/schema.ts` accordingly.
+Start by defining the [Convex action](https://docs.convex.dev/functions/actions)
+that calls the API to create embeddings. Feel free to substitute your favorite
+embeddings API. You may need to adjust the vector dimensions in the schema in
+`example/schema.ts` accordingly.
 
-Set your API key [environment variable](https://docs.convex.dev/production/environment-variables)
+Set your API key
+[environment variable](https://docs.convex.dev/production/environment-variables)
 
 ```bash
-npx convex env set OPENAI_KEY <your-api-key>
+npx convex env set OPENAI_API_KEY <your-api-key>
 ```
 
 ```ts
 export const embed = internalAction({
   args: { text: v.string() },
   handler: async (_ctx, { text }) => {
-    const apiKey = process.env.OPENAI_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error("OPENAI_KEY environment variable not set!");
+      throw new Error("OPENAI_API_KEY environment variable not set!");
     }
     const req = { input: text, model: "text-embedding-ada-002" };
     const resp = await fetch("https://api.openai.com/v1/embeddings", {
@@ -152,7 +173,7 @@ export const vectorSearch = action({
     });
     const rows: SearchResult[] = await ctx.runQuery(
       internal.example.fetchResults,
-      { results }
+      { results },
     );
     return rows;
   },
@@ -165,7 +186,8 @@ You can use the same component for multiple actions, or multiple versions of the
 same action. You can specify a custom `name` argument to denote which cache you
 want to use, or change the name to start fresh, like `embed-v2`.
 
-If the return value changes, it is important to change the name so you don't get unexpected values.
+If the return value changes, it is important to change the name so you don't get
+unexpected values.
 
 ### Updating the cache before it expires
 
@@ -190,8 +212,8 @@ To clear old values, you can:
    await embeddingsCache.remove(ctx, { text: "target text" });
    ```
 
-2. Remove all entries for the current name (defaults to function name).
-   This is useful if you updated the implementation and want to clear
+2. Remove all entries for the current name (defaults to function name). This is
+   useful if you updated the implementation and want to clear
 
    ```ts
    await embeddingsCache.removeAllForName(ctx);
