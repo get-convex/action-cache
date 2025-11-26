@@ -7,7 +7,6 @@ import {
   type GenericActionCtx,
   type GenericDataModel,
   type GenericMutationCtx,
-  type GenericQueryCtx,
   getFunctionName,
 } from "convex/server";
 import type { JSONValue } from "convex/values";
@@ -68,9 +67,20 @@ export class ActionCache<
    * @returns - The cache value
    */
   async fetch(
-    ctx: RunQueryCtx & RunMutationCtx & RunActionCtx,
+    ctx: ActionCtx,
     args: FunctionArgs<Action>,
-    opts?: { ttl?: number; force?: boolean },
+    opts?: {
+      /**
+       * How long to cache the value for. Overrides the default TTL.
+       */
+      ttl?: number;
+      /**
+       * Whether to force a cache miss.
+       * If true, the action will be called and the result will be cached.
+       * This can be useful if you want to update the cache before it expires.
+       */
+      force?: boolean;
+    },
   ) {
     const fn = await createFunctionHandle(this.config.action);
     const ttl = opts?.ttl ?? this.config.ttl ?? null;
@@ -121,7 +131,7 @@ export class ActionCache<
    * @param args - The arguments to the action the generates the cache values.
    * @returns
    */
-  async remove(ctx: RunMutationCtx, args: FunctionArgs<Action>) {
+  async remove(ctx: MutationCtx | ActionCtx, args: FunctionArgs<Action>) {
     return ctx.runMutation(this.component.lib.remove, {
       name: this.name,
       args,
@@ -133,27 +143,34 @@ export class ActionCache<
    * @param ctx - The Convex mutation context.
    * @param opts - Optionally override the default batch size.
    */
-  async removeAllForName(ctx: RunMutationCtx, opts?: { batchSize?: number }) {
+  async removeAllForName(
+    ctx: MutationCtx | ActionCtx,
+    opts?: { batchSize?: number },
+  ) {
     return ctx.runMutation(this.component.lib.removeAll, {
       name: this.name,
-      ...opts,
+      batchSize: opts?.batchSize,
     });
   }
 
   /**
-   * Clear all values in the cache.
-   * @param ctx - The Convex mutation context.
-   * @param before - (optional) Remove all values created before this timestamp.
-   * Defaults to now (all values).
-   * @returns
+   * @deprecated Use `import { removeAll } from "@convex-dev/action-cache"`.
+   * This one may imply it is only removing all values with this name/function.
    */
-  async removeAll(ctx: RunMutationCtx, before?: number) {
+  async removeAll(ctx: MutationCtx | ActionCtx, before?: number) {
     return ctx.runMutation(this.component.lib.removeAll, { before });
   }
 }
 
+/**
+ * Clear all values in the cache.
+ * @param ctx - The Convex mutation context.
+ * @param before - (optional) Remove all values created before this timestamp.
+ * Defaults to now (all values).
+ * @returns
+ */
 export async function removeAll(
-  ctx: RunMutationCtx,
+  ctx: MutationCtx | ActionCtx,
   component: ComponentApi,
   before?: number,
 ) {
@@ -162,12 +179,11 @@ export async function removeAll(
 
 /* Type utils follow */
 
-type RunMutationCtx = {
-  runMutation: GenericMutationCtx<GenericDataModel>["runMutation"];
-};
-type RunActionCtx = {
-  runAction: GenericActionCtx<GenericDataModel>["runAction"];
-};
-type RunQueryCtx = {
-  runQuery: GenericQueryCtx<GenericDataModel>["runQuery"];
-};
+type MutationCtx = Pick<
+  GenericMutationCtx<GenericDataModel>,
+  "runQuery" | "runMutation"
+>;
+type ActionCtx = Pick<
+  GenericActionCtx<GenericDataModel>,
+  "runQuery" | "runMutation" | "runAction"
+>;
