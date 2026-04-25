@@ -89,11 +89,14 @@ export const insertRow = internalMutation({
   },
 });
 
-export const list = query(async (ctx) => {
+export const list = query({
+  args: {},
+  handler: async (ctx) => {
   const docs = await ctx.db.query("foods").order("desc").take(10);
   return docs.map((doc) => {
     return { _id: doc._id, description: doc.description, cuisine: doc.cuisine };
   });
+}
 });
 
 export const fetchResults = internalQuery({
@@ -103,7 +106,7 @@ export const fetchResults = internalQuery({
   handler: async (ctx, args) => {
     const out: SearchResult[] = [];
     for (const result of args.results) {
-      const doc = await ctx.db.get(result._id);
+      const doc = await ctx.db.get("foods", result._id);
       if (!doc) {
         continue;
       }

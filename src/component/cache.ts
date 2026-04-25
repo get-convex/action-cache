@@ -18,7 +18,7 @@ export async function lookup(
 
 export async function del(ctx: MutationCtx, value: Doc<"values">) {
   if (value.metadataId) {
-    await ctx.db.delete(value.metadataId);
+    await ctx.db.delete("metadata", value.metadataId);
   }
-  await ctx.db.delete(value._id);
+  await ctx.db.delete("values", value._id);
 }
