@@ -19,8 +19,8 @@ export const purge = mutation({
       .take(10);
     const deletions = [];
     for (const value of valuesToDelete) {
-      deletions.push(ctx.db.delete(value._id));
-      deletions.push(ctx.db.delete(value.valueId));
+      deletions.push(ctx.db.delete("metadata", value._id));
+      deletions.push(ctx.db.delete("values", value.valueId));
     }
     await Promise.all(deletions);
     if (valuesToDelete.length === 10) {
