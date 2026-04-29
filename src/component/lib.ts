@@ -36,7 +36,7 @@ export const get = query({
     // original TTL.
     let expiresAt: number | null = null;
     if (match.metadataId) {
-      const metadataDoc = await ctx.db.get(match.metadataId);
+      const metadataDoc = await ctx.db.get("metadata", match.metadataId);
       expiresAt = metadataDoc?.expiresAt ?? null;
     }
     if (args.ttl !== undefined && args.ttl !== null) {
@@ -93,7 +93,7 @@ export const put = mutation({
         valueId,
         expiresAt,
       });
-      await ctx.db.patch(valueId, {
+      await ctx.db.patch("values", valueId, {
         metadataId,
       });
     }
