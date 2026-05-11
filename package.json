@@ -71,7 +71,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.1",
     "chokidar-cli": "3.0.0",
-    "convex": "1.37.0",
+    "convex": "1.38.0",
     "convex-test": "0.0.51",
     "eslint": "10.3.0",
     "eslint-plugin-react-hooks": "7.1.1",
