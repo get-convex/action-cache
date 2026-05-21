@@ -9,6 +9,8 @@ on:
   pull_request:
     branches: ["**"]
 
+permissions: {}
+
 jobs:
   check:
     name: Test and lint
@@ -17,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          persist-credentials: false
 
       - name: Node setup
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
